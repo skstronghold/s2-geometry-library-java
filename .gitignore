@@ -1,2 +1,10 @@
-
+# ant
 build/
+# maven
+target/
+
+# intellij
+overlays/
+.idea/
+*.iml
+*.iws
