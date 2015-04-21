@@ -757,7 +757,7 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
                     // means it can give the wrong answers in cases where we are trying
                     // to determine edge intersections. The workaround is to ignore
                     // intersections between edge pairs where all four points are
-                    // nearly colinear.
+                    // nearly collinear.
                     double abc = S2.angle(vertex(a1), vertex(a2), vertex(b1));
                     boolean abcNearlyLinear = S2.approxEquals(abc, 0D, MAX_INTERSECTION_ERROR) ||
                             S2.approxEquals(abc, S2.M_PI, MAX_INTERSECTION_ERROR);

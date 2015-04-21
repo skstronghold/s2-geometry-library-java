@@ -18,6 +18,8 @@ package com.google.common.geometry;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -28,6 +30,8 @@ import static org.junit.Assert.assertTrue;
  * Tests for {@link S2Polygon}.
  */
 public strictfp class S2PolygonTest extends GeometryTestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(S2PolygonTest.class);
 
     // A set of nested loops around the point 0:0 (lat:lng).
     // Every vertex of NEAR0 is a vertex of NEAR1.
@@ -256,15 +260,25 @@ public strictfp class S2PolygonTest extends GeometryTestCase {
         if (s2Loop.numVertices() != 8) {
             return;
         }
-
-        assertPointApproximatelyEquals(s2Loop, 0, 2.0, 0.0, 0.01);
-        assertPointApproximatelyEquals(s2Loop, 1, 1.0, 0.0, 0.01);
-        assertPointApproximatelyEquals(s2Loop, 2, 0.0, 0.0, 0.01);
-        assertPointApproximatelyEquals(s2Loop, 3, 0.0, 1.0, 0.01);
-        assertPointApproximatelyEquals(s2Loop, 4, 0.0, 2.0, 0.01);
-        assertPointApproximatelyEquals(s2Loop, 5, 1.0, 2.0, 0.01);
-        assertPointApproximatelyEquals(s2Loop, 6, 2.0, 2.0, 0.01);
-        assertPointApproximatelyEquals(s2Loop, 7, 2.0, 1.0, 0.01);
+        assertTrue(s2Loop.isValid()); // has at least 3 vertices and is in the proper CCW order...
+        assertTrue(S2.orderedCCW(s2Loop.vertex(0), s2Loop.vertex(1), s2Loop.vertex(s2Loop.numVertices() - 1), s2Loop.vertex(0)));
+        // java 8 seemed to deliver the coordinates in a somewhat different and order...still correct just not the same
+        // as what was hard-coded...so find the offsets from the hardcoded values...plus also will ensure all expected vertices are present
+        List<S2LatLng> coordinates = Lists.newArrayList();
+        for(int i = 0; i < s2Loop.numVertices(); i++) {
+            S2LatLng ll = new S2LatLng(s2Loop.vertex(i));
+            coordinates.add(ll);
+        }
+        S2LatLng start = S2LatLng.fromDegrees(2.0, 0.0);
+        int offset = coordinates.indexOf(start);
+        assertPointApproximatelyEquals(s2Loop, offset, 2.0, 0.0, 0.01);
+        assertPointApproximatelyEquals(s2Loop, 1 + offset, 1.0, 0.0, 0.01);
+        assertPointApproximatelyEquals(s2Loop, 2 + offset, 0.0, 0.0, 0.01);
+        assertPointApproximatelyEquals(s2Loop, 3 + offset, 0.0, 1.0, 0.01);
+        assertPointApproximatelyEquals(s2Loop, 4 + offset, 0.0, 2.0, 0.01);
+        assertPointApproximatelyEquals(s2Loop, 5 + offset, 1.0, 2.0, 0.01);
+        assertPointApproximatelyEquals(s2Loop, 6 + offset, 2.0, 2.0, 0.01);
+        assertPointApproximatelyEquals(s2Loop, 7 + offset, 2.0, 1.0, 0.01);
     }
 
     @Test
