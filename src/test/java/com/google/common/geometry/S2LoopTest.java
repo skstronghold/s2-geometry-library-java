@@ -19,6 +19,7 @@ package com.google.common.geometry;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,9 +89,8 @@ public strictfp class S2LoopTest extends GeometryTestCase {
     private S2Loop eastHemi;
     private S2Loop farHemi;
 
-    @Override
+    @Before
     public void setUp() {
-        super.setUp();
         southHemi = new S2Loop(northHemi);
         southHemi.invert();
 
@@ -146,14 +146,14 @@ public strictfp class S2LoopTest extends GeometryTestCase {
             // maximum distance from the boundary of the spherical cap is kMaxDist.
             // Thus we want fabs(atan(tan(phi) / cos(dtheta/2)) - phi) <= kMaxDist.
             double kMaxDist = 1e-6;
-            double height = 2 * rand.nextDouble();
+            double height = 2 * RANDOM_GENERATOR.nextDouble();
             double phi = Math.asin(1 - height);
             double maxDtheta =
                     2 * Math.acos(Math.tan(Math.abs(phi)) / Math.tan(Math.abs(phi) + kMaxDist));
             maxDtheta = Math.min(S2.M_PI, maxDtheta); // At least 3 vertices.
 
             List<S2Point> vertices = Lists.newArrayList();
-            for (double theta = 0; theta < 2 * S2.M_PI; theta += rand.nextDouble() * maxDtheta) {
+            for (double theta = 0; theta < 2 * S2.M_PI; theta += RANDOM_GENERATOR.nextDouble() * maxDtheta) {
 
                 S2Point xCosThetaCosPhi = S2Point.mul(x, (Math.cos(theta) * Math.cos(phi)));
                 S2Point ySinThetaCosPhi = S2Point.mul(y, (Math.sin(theta) * Math.cos(phi)));
@@ -400,12 +400,12 @@ public strictfp class S2LoopTest extends GeometryTestCase {
         // at some fixed level. Comparing two polygons at the same level
         // ensures that there are no T-vertices.
         for (int iter = 0; iter < 1000; ++iter) {
-            long num = rand.nextLong();
+            long num = RANDOM_GENERATOR.nextLong();
             S2CellId begin = new S2CellId(num | 1);
             if (!begin.isValid()) {
                 continue;
             }
-            begin = begin.parent((int) Math.round(rand.nextDouble() * S2CellId.MAX_LEVEL));
+            begin = begin.parent((int) Math.round(RANDOM_GENERATOR.nextDouble() * S2CellId.MAX_LEVEL));
             S2CellId aBegin = advance(begin, skewed(6));
             S2CellId aEnd = advance(aBegin, skewed(6) + 1);
             S2CellId bBegin = advance(begin, skewed(6));

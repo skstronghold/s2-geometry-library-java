@@ -135,7 +135,7 @@ public final strictfp class S2 {
      * [0,3].
      * @throws IllegalArgumentException if either parameter is out of bounds.
      */
-    public static final int ijToPos(int orientation, int ijIndex) {
+    public static int ijToPos(int orientation, int ijIndex) {
         Preconditions.checkArgument(0 <= orientation && orientation < 4);
         Preconditions.checkArgument(0 <= ijIndex && ijIndex < 4);
         return IJ_TO_POS[orientation][ijIndex];
@@ -482,7 +482,7 @@ public final strictfp class S2 {
 
     /**
      * Return true if the points A, B, C are strictly counterclockwise. Return
-     * false if the points are clockwise or colinear (i.e. if they are all
+     * false if the points are clockwise or collinear (i.e. if they are all
      * contained on some great circle).
      * <p>
      * Due to numerical errors, situations may arise that are mathematically
@@ -508,7 +508,7 @@ public final strictfp class S2 {
 
     /**
      * WARNING! This requires arbitrary precision arithmetic to be truly robust.
-     * This means that for nearly colinear AB and AC, this function may return the
+     * This means that for nearly collinear AB and AC, this function may return the
      * wrong answer.
      * <p>
      * <p>
@@ -586,7 +586,7 @@ public final strictfp class S2 {
 
         // Now compute the determinant in a stable way. Since all three points are
         // unit length and we know that the determinant is very close to zero, this
-        // means that points are very nearly colinear. Furthermore, the most common
+        // means that points are very nearly collinear. Furthermore, the most common
         // situation is where two points are nearly identical or nearly antipodal.
         // To get the best accuracy in this situation, it is important to
         // immediately reduce the magnitude of the arguments by computing either
@@ -653,9 +653,9 @@ public final strictfp class S2 {
         }
 
         // The points A, B, and C are numerically indistinguishable from coplanar.
-        // This may be due to roundoff error, or the points may in fact be exactly
+        // This may be due to round-off error, or the points may in fact be exactly
         // coplanar. We handle this situation by perturbing all of the points by a
-        // vector (eps, eps**2, eps**3) where "eps" is an infinitesmally small
+        // vector (eps, eps**2, eps**3) where "eps" is an infinitesimally small
         // positive number (e.g. 1 divided by a googolplex). The perturbation is
         // done symbolically, i.e. we compute what would happen if the points were
         // perturbed by this amount. It turns out that this is equivalent to

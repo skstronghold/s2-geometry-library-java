@@ -16,8 +16,9 @@
 
 package com.google.common.geometry;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -508,20 +509,20 @@ public strictfp class S2EdgeUtilTest extends GeometryTestCase {
             // This ensures that we test both long and very short segments that
             // intersect at both large and very small angles.
 
-            ImmutableList<S2Point> points = getRandomFrame();
+            List<S2Point> points = getRandomFrame();
             S2Point p = points.get(0);
             S2Point d1 = points.get(1);
             S2Point d2 = points.get(2);
-            double slope = Math.pow(1e-15, rand.nextDouble());
+            double slope = Math.pow(1e-15, RANDOM_GENERATOR.nextDouble());
             d2 = S2Point.add(d1, S2Point.mul(d2, slope));
             S2Point a = S2Point.normalize(
-                    S2Point.add(p, S2Point.mul(d1, Math.pow(1e-15 / slope, rand.nextDouble()))));
+                    S2Point.add(p, S2Point.mul(d1, Math.pow(1e-15 / slope, RANDOM_GENERATOR.nextDouble()))));
             S2Point b = S2Point.normalize(
-                    S2Point.sub(p, S2Point.mul(d1, Math.pow(1e-15 / slope, rand.nextDouble()))));
+                    S2Point.sub(p, S2Point.mul(d1, Math.pow(1e-15 / slope, RANDOM_GENERATOR.nextDouble()))));
             S2Point c = S2Point.normalize(
-                    S2Point.add(p, S2Point.mul(d2, Math.pow(1e-15 / slope, rand.nextDouble()))));
+                    S2Point.add(p, S2Point.mul(d2, Math.pow(1e-15 / slope, RANDOM_GENERATOR.nextDouble()))));
             S2Point d = S2Point.normalize(
-                    S2Point.sub(p, S2Point.mul(d2, Math.pow(1e-15 / slope, rand.nextDouble()))));
+                    S2Point.sub(p, S2Point.mul(d2, Math.pow(1e-15 / slope, RANDOM_GENERATOR.nextDouble()))));
             S2Point x = S2EdgeUtil.getIntersection(a, b, c, d);
             S1Angle distAb = S2EdgeUtil.getDistance(x, a, b);
             S1Angle distCd = S2EdgeUtil.getDistance(x, c, d);

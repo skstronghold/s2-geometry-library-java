@@ -30,8 +30,7 @@ import java.util.List;
  * allowed, i.e. adjacent vertices should not be identical or antipodal.
  * <p>
  * <p>Note: Polylines do not have a Contains(S2Point) method, because
- * "containment" is not numerically well-defined except at the polyline
- * vertices.
+ * "containment" is not numerically well-defined except at the polyline vertices.
  */
 public final strictfp class S2Polyline implements S2Region {
     private static final Logger log = LoggerFactory.getLogger(S2Polyline.class);
@@ -41,23 +40,13 @@ public final strictfp class S2Polyline implements S2Region {
 
     /**
      * Create a polyline that connects the given vertices. Empty polylines are
-     * allowed. Adjacent vertices should not be identical or antipodal. All
-     * vertices should be unit length.
+     * allowed. Adjacent vertices should not be identical or antipodal.
+     * All vertices should be unit length.
      */
     public S2Polyline(List<S2Point> vertices) {
         // assert isValid(vertices);
         this.numVertices = vertices.size();
         this.vertices = vertices.toArray(new S2Point[numVertices]);
-    }
-
-    /**
-     * Copy constructor.
-     * <p>
-     * TODO(dbeaumont): Now that S2Polyline is immutable, remove this.
-     */
-    public S2Polyline(S2Polyline src) {
-        this.numVertices = src.numVertices();
-        this.vertices = src.vertices.clone();
     }
 
     /**
@@ -95,8 +84,7 @@ public final strictfp class S2Polyline implements S2Region {
     }
 
     /**
-     * Return the angle corresponding to the total arclength of the polyline on a
-     * unit sphere.
+     * Return the angle corresponding to the total arclength of the polyline on a unit sphere.
      */
     public S1Angle getArclengthAngle() {
         double lengthSum = 0;
@@ -144,7 +132,6 @@ public final strictfp class S2Polyline implements S2Region {
     /**
      * Return a bounding spherical cap.
      */
-    @Override
     public S2Cap getCapBound() {
         return getRectBound().getCapBound();
     }
@@ -153,7 +140,6 @@ public final strictfp class S2Polyline implements S2Region {
     /**
      * Return a bounding latitude-longitude rectangle.
      */
-    @Override
     public S2LatLngRect getRectBound() {
         S2EdgeUtil.RectBounder bounder = new S2EdgeUtil.RectBounder();
         for (int i = 0; i < numVertices(); ++i) {
@@ -167,7 +153,6 @@ public final strictfp class S2Polyline implements S2Region {
      * Otherwise, either the region does not contain the cell or the containment
      * relationship could not be determined.
      */
-    @Override
     public boolean contains(S2Cell cell) {
         throw new UnsupportedOperationException(
                 "'containment' is not numerically well-defined " + "except at the polyline vertices");
@@ -178,7 +163,6 @@ public final strictfp class S2Polyline implements S2Region {
      * Otherwise, either region intersects the cell, or the intersection
      * relationship could not be determined.
      */
-    @Override
     public boolean mayIntersect(S2Cell cell) {
         if (numVertices() == 0) {
             return false;

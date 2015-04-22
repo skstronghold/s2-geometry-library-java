@@ -22,12 +22,17 @@ package com.google.common.geometry;
  * functions that are specifically related to the Earth's geometry (e.g.
  * easting/northing conversions) should be put elsewhere.
  */
-public strictfp class S2LatLng {
+public final strictfp class S2LatLng {
+
+    // DEPRECATED: the original earth radius measure used in this code was...
+    // ...the Earth's Meridional radii, i.e., radius of curvature in the (north-south) meridian
+    // Approximate "effective" radius of the Earth in meters.
+    // public static final double EARTH_RADIUS_METERS = 6367000.0;
 
     /**
-     * Approximate "effective" radius of the Earth in meters.
+     * Earth Mean radii estimated from a ellipsoidal model, i.e., WGS84
      */
-    public static final double EARTH_RADIUS_METERS = 6367000.0;
+    public static final double EARTH_RADIUS_METERS = 6371000.0;
 
     /**
      * The center point the lat/lng coordinate system.
@@ -78,8 +83,7 @@ public strictfp class S2LatLng {
     }
 
     /**
-     * Basic constructor. The latitude and longitude must be within the ranges
-     * allowed by is_valid() below.
+     * Basic constructor. The latitude and longitude must be within the ranges allowed by is_valid() below.
      * <p>
      * TODO(dbeaumont): Make this a static factory method (fromLatLng() ?).
      */
@@ -191,8 +195,7 @@ public strictfp class S2LatLng {
     }
 
     /**
-     * Return the distance (measured along the surface of the sphere) to the given
-     * point.
+     * Return the distance (measured along the surface of the sphere) to the given point.
      */
     public S1Angle getDistance(final S2LatLng o) {
         // This implements the Haversine formula, which is numerically stable for

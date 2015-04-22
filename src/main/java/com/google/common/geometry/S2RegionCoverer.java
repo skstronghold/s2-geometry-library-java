@@ -49,14 +49,14 @@ import java.util.PriorityQueue;
  * lot of time subdividing cells all the way to leaf level to try to find
  * contained cells.
  * <p>
- * This class is thread-unsafe. Simultaneous calls to any of the getCovering
+ * This class is ** NOT thread safe **. Simultaneous calls to any of the getCovering
  * methods will conflict and produce unpredictable results.
  */
 public final strictfp class S2RegionCoverer {
 
     /**
      * By default, the covering uses at most 8 cells at any level. This gives a
-     * reasonable tradeoff between the number of cells used and the accuracy of
+     * reasonable trade off between the number of cells used and the accuracy of
      * the approximation (see table below).
      */
     public static final int DEFAULT_MAX_CELLS = 8;
@@ -68,7 +68,6 @@ public final strictfp class S2RegionCoverer {
             FACE_CELLS[face] = S2Cell.fromFacePosLevel(face, (byte) 0, 0);
         }
     }
-
 
     private int minLevel;
     private int maxLevel;
@@ -86,21 +85,19 @@ public final strictfp class S2RegionCoverer {
      * avoid passing this parameter around internally. It is only used (and only
      * valid) for the duration of a single GetCovering() call.
      */
-    S2Region region;
+    private S2Region region;
 
     /**
      * A temporary variable used by GetCovering() that holds the cell ids that
      * have been added to the covering so far.
      */
-    ArrayList<S2CellId> result;
-
+    private ArrayList<S2CellId> result;
 
     static class Candidate {
         private S2Cell cell;
         private boolean isTerminal; // Cell should not be expanded further.
         private int numChildren; // Number of children that intersect the region.
-        private Candidate[] children; // Actual size may be 0, 4, 16, or 64
-        // elements.
+        private Candidate[] children; // Actual size may be 0, 4, 16, or 64 elements.
     }
 
     static class QueueEntry {
@@ -119,12 +116,10 @@ public final strictfp class S2RegionCoverer {
      * priority would be sorted according to the memory address of the candidate.
      */
     static class QueueEntriesComparator implements Comparator<QueueEntry> {
-        @Override
         public int compare(S2RegionCoverer.QueueEntry x, S2RegionCoverer.QueueEntry y) {
             return x.id < y.id ? 1 : (x.id > y.id ? -1 : 0);
         }
     }
-
 
     /**
      * We keep the candidates in a priority queue. We specify a vector to hold the
@@ -143,8 +138,7 @@ public final strictfp class S2RegionCoverer {
         maxCells = DEFAULT_MAX_CELLS;
         this.region = null;
         result = new ArrayList<S2CellId>();
-        // TODO(kirilll?): 10 is a completely random number, work out a better
-        // estimate
+        // TODO(kirilll?): 10 is a completely random number, work out a better estimate
         candidateQueue = new PriorityQueue<QueueEntry>(10, new QueueEntriesComparator());
     }
 
@@ -155,8 +149,7 @@ public final strictfp class S2RegionCoverer {
     // the S2Cell metrics defined in s2.h. For example, to find the cell
     // level that corresponds to an average edge length of 10km, use:
     //
-    // int level = S2::kAvgEdge.GetClosestLevel(
-    // geostore::S2Earth::KmToRadians(length_km));
+    // int level = S2.getClosestLevel(geostore::S2Earth::KmToRadians(length_km));
     //
     // Note: min_level() takes priority over max_cells(), i.e. cells below the
     // given level will never be used even if this causes a large number of
@@ -206,7 +199,6 @@ public final strictfp class S2RegionCoverer {
         return levelMod;
     }
 
-
     /**
      * Sets the maximum desired number of cells in the approximation (defaults to
      * kDefaultMaxCells). Note the following:
@@ -242,8 +234,7 @@ public final strictfp class S2RegionCoverer {
     }
 
     /**
-     * Computes a list of cell ids that covers the given region and satisfies the
-     * various restrictions specified above.
+     * Computes a list of cell ids that covers the given region and satisfies the various restrictions specified above.
      *
      * @param region   The region to cover
      * @param covering The list filled in by this method
@@ -313,8 +304,7 @@ public final strictfp class S2RegionCoverer {
      * Given a connected region and a starting point, return a set of cells at the
      * given level that cover the region.
      */
-    public static void getSimpleCovering(
-            S2Region region, S2Point start, int level, ArrayList<S2CellId> output) {
+    public static void getSimpleCovering(S2Region region, S2Point start, int level, ArrayList<S2CellId> output) {
         floodFill(region, S2CellId.fromPoint(start).parent(level), output);
     }
 
@@ -407,8 +397,7 @@ public final strictfp class S2RegionCoverer {
 
     /**
      * Populate the children of "candidate" by expanding the given number of
-     * levels from the given cell. Returns the number of children that were marked
-     * "terminal".
+     * levels from the given cell. Returns the number of children that were marked "terminal".
      */
     private int expandChildren(Candidate candidate, S2Cell cell, int numLevels) {
         numLevels--;

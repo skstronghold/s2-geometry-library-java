@@ -15,22 +15,20 @@
  */
 package com.google.common.geometry;
 
-
 /**
  * An S2Cell is an S2Region object that represents a cell. Unlike S2CellIds, it
  * supports efficient containment and intersection tests. However, it is also a
  * more expensive representation.
  */
-
 public final strictfp class S2Cell implements S2Region {
 
     private static final int MAX_CELL_SIZE = 1 << S2CellId.MAX_LEVEL;
 
-    byte face;
-    byte level;
-    byte orientation;
-    S2CellId cellId;
-    double[][] uv = new double[2][2];
+    private byte face;
+    private byte level;
+    private byte orientation;
+    private S2CellId cellId;
+    private double[][] uv = new double[2][2];
 
     /**
      * Default constructor used only internally.
@@ -59,7 +57,6 @@ public final strictfp class S2Cell implements S2Region {
     public S2Cell(S2LatLng ll) {
         init(S2CellId.fromLatLng(ll));
     }
-
 
     public S2CellId id() {
         return cellId;
@@ -216,7 +213,6 @@ public final strictfp class S2Cell implements S2Region {
      * compute.
      */
     public double approxArea() {
-
         // All cells at the first two levels have the same area.
         if (level < 2) {
             return averageArea(level);
@@ -264,7 +260,6 @@ public final strictfp class S2Cell implements S2Region {
         return clone;
     }
 
-    @Override
     public S2Cap getCapBound() {
         // Use the cell center in (u,v)-space as the cap axis. This vector is
         // very close to GetCenter() and faster to compute. Neither one of these
@@ -299,7 +294,6 @@ public final strictfp class S2Cell implements S2Region {
     // 35.26 degrees
 
 
-    @Override
     public S2LatLngRect getRectBound() {
         if (level > 0) {
             // Except for cells at level 0, the latitude and longitude extremes are
@@ -354,7 +348,6 @@ public final strictfp class S2Cell implements S2Region {
 
     }
 
-    @Override
     public boolean mayIntersect(S2Cell cell) {
         return cellId.intersects(cell.cellId);
     }
@@ -372,7 +365,6 @@ public final strictfp class S2Cell implements S2Region {
     }
 
     // The point 'p' does not need to be normalized.
-    @Override
     public boolean contains(S2Cell cell) {
         return cellId.contains(cell.cellId);
     }
@@ -400,20 +392,23 @@ public final strictfp class S2Cell implements S2Region {
     }
 
 
-    // Internal method that does the actual work in the constructors.
+    // Internal method(s) that do the actual work in the constructors.
 
+    /**
+     * Return the latitude of the cell vertex given by (i,j), where "i" and "j" are either 0 or 1.
+     */
     private double getLatitude(int i, int j) {
         S2Point p = S2Projections.faceUvToXyz(face, uv[0][i], uv[1][j]);
         return Math.atan2(p.z, Math.sqrt(p.x * p.x + p.y * p.y));
     }
 
+    /**
+     * Return the longitude of the cell vertex given by (i,j), where "i" and "j" are either 0 or 1.
+     */
     private double getLongitude(int i, int j) {
         S2Point p = S2Projections.faceUvToXyz(face, uv[0][i], uv[1][j]);
         return Math.atan2(p.y, p.x);
     }
-
-    // Return the latitude or longitude of the cell vertex given by (i,j),
-    // where "i" and "j" are either 0 or 1.
 
     @Override
     public String toString() {

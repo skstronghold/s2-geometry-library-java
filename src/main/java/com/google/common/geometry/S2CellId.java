@@ -153,7 +153,6 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         return fromFaceIJ(face, i, j);
     }
 
-
     /**
      * Return the leaf cell containing the given S2LatLng.
      */
@@ -206,7 +205,6 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     public S2LatLng toLatLng() {
         return new S2LatLng(toPointRaw());
     }
-
 
     /**
      * The 64-bit unique identifier for this cell.
@@ -271,7 +269,6 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         return level;
     }
 
-
     /**
      * Return true if this is a leaf cell (more efficient than checking whether
      * level() == MAX_LEVEL).
@@ -317,7 +314,6 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     public S2CellId rangeMax() {
         return new S2CellId(id + (lowestOnBit() - 1));
     }
-
 
     /**
      * Return true if the given cell is contained within this one.
@@ -405,7 +401,6 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         return new S2CellId(id - (lowestOnBit() << 1));
     }
 
-
     /**
      * Like next(), but wraps around from the last face to the first and vice
      * versa. Should *not* be used for iteration in conjunction with
@@ -432,7 +427,6 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         return new S2CellId(p.id + WRAP_OFFSET);
     }
 
-
     public static S2CellId begin(int level) {
         return fromFacePosLevel(0, 0, 0).childBegin(level);
     }
@@ -440,7 +434,6 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     public static S2CellId end(int level) {
         return fromFacePosLevel(5, 0, 0).childEnd(level);
     }
-
 
     /**
      * Decodes the cell id from a compact text string suitable for display or
@@ -745,7 +738,6 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         return bits;
     }
 
-
     /**
      * Return the (face, i, j) coordinates for the leaf cell corresponding to this
      * cell id. Since cells are represented by the Hilbert curve position at the
@@ -753,13 +745,9 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
      * cell adjacent to the cell center. If "orientation" is non-NULL, also return
      * the Hilbert curve orientation for the current cell.
      */
-    public int toFaceIJOrientation(MutableInteger pi, MutableInteger pj,
-                                   MutableInteger orientation) {
-        // System.out.println("Entering toFaceIjorientation");
+    public int toFaceIJOrientation(MutableInteger pi, MutableInteger pj, MutableInteger orientation) {
         int face = this.face();
         int bits = (face & SWAP_MASK);
-
-        // System.out.println("face = " + face + " bits = " + bits);
 
         // Each iteration maps 8 bits of the Hilbert curve position into
         // 4 bits of "i" and "j". The lookup table transforms a key of the
@@ -771,7 +759,6 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         // representing the cube face.
         for (int k = 7; k >= 0; --k) {
             bits = getBits1(pi, pj, k, bits);
-            // System.out.println("pi = " + pi + " pj= " + pj + " bits = " + bits);
         }
 
         if (orientation != null) {
@@ -797,22 +784,15 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
 
         bits += (((int) (id >>> (k * 2 * LOOKUP_BITS + 1)) &
                 ((1 << (2 * nbits)) - 1))) << 2;
-    /*
-     * System.out.println("id is: " + id_); System.out.println("bits is " +
-     * bits); System.out.println("lookup_ij[bits] is " + lookup_ij[bits]);
-     */
+
         bits = LOOKUP_IJ[bits];
+
         i.setValue(i.intValue()
                 + ((bits >> (LOOKUP_BITS + 2)) << (k * LOOKUP_BITS)));
-    /*
-     * System.out.println("left is " + ((bits >> 2) & ((1 << kLookupBits) -
-     * 1))); System.out.println("right is " + (k * kLookupBits));
-     * System.out.println("j is: " + j.intValue()); System.out.println("addition
-     * is: " + ((((bits >> 2) & ((1 << kLookupBits) - 1))) << (k *
-     * kLookupBits)));
-     */
+
         j.setValue(j.intValue()
                 + ((((bits >> 2) & ((1 << LOOKUP_BITS) - 1))) << (k * LOOKUP_BITS)));
+
         bits &= (SWAP_MASK | INVERT_MASK);
         return bits;
     }
@@ -833,7 +813,6 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     public static long lowestOnBitForLevel(int level) {
         return 1L << (2 * (MAX_LEVEL - level));
     }
-
 
     /**
      * Return the i- or j-index of the leaf cell containing the given s- or
@@ -890,8 +869,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
      * Public helper function that calls FromFaceIJ if sameFace is true, or
      * FromFaceIJWrap if sameFace is false.
      */
-    public static S2CellId fromFaceIJSame(int face, int i, int j,
-                                          boolean sameFace) {
+    public static S2CellId fromFaceIJSame(int face, int i, int j, boolean sameFace) {
         if (sameFace) {
             return S2CellId.fromFaceIJ(face, i, j);
         } else {
@@ -950,8 +928,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
                 + level() + ")";
     }
 
-    private static void initLookupCell(int level, int i, int j,
-                                       int origOrientation, int pos, int orientation) {
+    private static void initLookupCell(int level, int i, int j, int origOrientation, int pos, int orientation) {
         if (level == LOOKUP_BITS) {
             int ij = (i << LOOKUP_BITS) + j;
             LOOKUP_POS[(ij << 2) + origOrientation] = (pos << 2) + orientation;
@@ -971,7 +948,6 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         }
     }
 
-    @Override
     public int compareTo(S2CellId that) {
         return unsignedLongLessThan(this.id, that.id) ? -1 :
                 unsignedLongGreaterThan(this.id, that.id) ? 1 : 0;

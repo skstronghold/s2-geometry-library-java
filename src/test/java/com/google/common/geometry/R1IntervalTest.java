@@ -42,10 +42,10 @@ public strictfp class R1IntervalTest extends GeometryTestCase {
         // Constructors and accessors.
         R1Interval unit = new R1Interval(0, 1);
         R1Interval negunit = new R1Interval(-1, 0);
-        assertEquals(unit.lo(), 0.0, EPSILON);
-        assertEquals(unit.hi(), 1.0, EPSILON);
-        assertEquals(negunit.lo(), -1.0, EPSILON);
-        assertEquals(negunit.hi(), 0.0, EPSILON);
+        assertEquals(unit.lo(), 0.0, DEFAULT_EPSILON);
+        assertEquals(unit.hi(), 1.0, DEFAULT_EPSILON);
+        assertEquals(negunit.lo(), -1.0, DEFAULT_EPSILON);
+        assertEquals(negunit.hi(), 0.0, DEFAULT_EPSILON);
 
         // is_empty()
         R1Interval half = new R1Interval(0.5, 0.5);
@@ -55,10 +55,10 @@ public strictfp class R1IntervalTest extends GeometryTestCase {
         assertTrue(empty.isEmpty());
 
         // GetCenter(), GetLength()
-        assertEquals(unit.getCenter(), 0.5, EPSILON);
-        assertEquals(half.getCenter(), 0.5, EPSILON);
-        assertEquals(negunit.getLength(), 1.0, EPSILON);
-        assertEquals(half.getLength(), 0.0, EPSILON);
+        assertEquals(unit.getCenter(), 0.5, DEFAULT_EPSILON);
+        assertEquals(half.getCenter(), 0.5, DEFAULT_EPSILON);
+        assertEquals(negunit.getLength(), 1.0, DEFAULT_EPSILON);
+        assertEquals(half.getLength(), 0.0, DEFAULT_EPSILON);
         assertTrue(empty.getLength() < 0);
 
         // contains(double), interiorContains(double)

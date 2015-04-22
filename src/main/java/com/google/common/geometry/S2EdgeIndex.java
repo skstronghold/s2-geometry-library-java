@@ -24,8 +24,7 @@ import java.util.*;
 
 public abstract strictfp class S2EdgeIndex {
     /**
-     * Thicken the edge in all directions by roughly 1% of the edge length when
-     * thickenEdge is true.
+     * Thicken the edge in all directions by roughly 1% of the edge length when thickenEdge is true.
      */
     private static final double THICKENING = 0.01;
 
@@ -128,14 +127,12 @@ public abstract strictfp class S2EdgeIndex {
      * Sorts the parallel <code>cells</code> and <code>edges</code> arrays.
      */
     private void sortIndex() {
-        // create an array of indices and sort based on the values in the parallel
-        // arrays at each index
+        // create an array of indices and sort based on the values in the parallel arrays at each index
         Integer[] indices = new Integer[cells.length];
         for (int i = 0; i < indices.length; i++) {
             indices[i] = i;
         }
         Arrays.sort(indices, new Comparator<Integer>() {
-            @Override
             public int compare(Integer index1, Integer index2) {
                 return S2EdgeIndex.compare(cells[index1], edges[index1], cells[index2], edges[index2]);
             }
@@ -301,8 +298,7 @@ public abstract strictfp class S2EdgeIndex {
      * It is guaranteed that no child of a covering cell will fully contain the
      * covered edge.
      */
-    private int getCovering(
-            S2Point a, S2Point b, boolean thickenEdge, ArrayList<S2CellId> edgeCovering) {
+    private int getCovering(S2Point a, S2Point b, boolean thickenEdge, ArrayList<S2CellId> edgeCovering) {
         edgeCovering.clear();
 
         // Selects the ideal s2 level at which to cover the edge, this will be the
@@ -350,17 +346,14 @@ public abstract strictfp class S2EdgeIndex {
         if (idealLevel == 0) {
             // Edge is very long, maybe even longer than a face width, so the
             // trick below doesn't work. For now, we will add the whole S2 sphere.
-            // TODO(user): Do something a tad smarter (and beware of the
-            // antipodal case).
+            // TODO(user): Do something a tad smarter (and beware of the antipodal case).
             for (S2CellId cellid = S2CellId.begin(0); !cellid.equals(S2CellId.end(0));
                  cellid = cellid.next()) {
                 edgeCovering.add(cellid);
             }
             return 0;
         }
-        // TODO(user): Check trick below works even when vertex is at
-        // interface
-        // between three faces.
+        // TODO(user): Check trick below works even when vertex is at interface between three faces.
 
         // Use trick as in S2PolygonBuilder.PointIndex.findNearbyPoint:
         // Cover the edge by a cap centered at the edge midpoint, then cover
@@ -487,8 +480,7 @@ public abstract strictfp class S2EdgeIndex {
      * refined to eliminate quickly subcells that contain many edges but do not
      * intersect with edge.
      */
-    private void getEdgesInChildrenCells(S2Point a, S2Point b, List<S2CellId> cover,
-                                         Set<Integer> candidateCrossings) {
+    private void getEdgesInChildrenCells(S2Point a, S2Point b, List<S2CellId> cover, Set<Integer> candidateCrossings) {
         // Put all edge references of (covering cells + descendant cells) into
         // result.
         // This relies on the natural ordering of S2CellIds.

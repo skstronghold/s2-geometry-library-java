@@ -17,10 +17,9 @@ package com.google.common.geometry;
 
 /**
  * An S2Point represents a point on the unit sphere as a 3D vector. Usually
- * points are normalized to be unit length, but some methods do not require
- * this.
+ * points are normalized to be unit length, but some methods do not require this.
  */
-public strictfp class S2Point implements Comparable<S2Point> {
+public final strictfp class S2Point implements Comparable<S2Point> {
     // coordinates of the points
     final double x;
     final double y;
@@ -53,8 +52,7 @@ public strictfp class S2Point implements Comparable<S2Point> {
     }
 
     public static S2Point crossProd(final S2Point p1, final S2Point p2) {
-        return new S2Point(
-                p1.y * p2.z - p1.z * p2.y, p1.z * p2.x - p1.x * p2.z, p1.x * p2.y - p1.y * p2.x);
+        return new S2Point(p1.y * p2.z - p1.z * p2.y, p1.z * p2.x - p1.x * p2.z, p1.x * p2.y - p1.y * p2.x);
     }
 
     public static S2Point add(final S2Point p1, final S2Point p2) {
@@ -173,8 +171,6 @@ public strictfp class S2Point implements Comparable<S2Point> {
         return false;
     }
 
-    // Required for Comparable
-    @Override
     public int compareTo(S2Point other) {
         return (lessThan(other) ? -1 : (equals(other) ? 0 : 1));
     }
@@ -191,7 +187,7 @@ public strictfp class S2Point implements Comparable<S2Point> {
     }
 
     /**
-     * Calcualates hashcode based on stored coordinates. Since we want +0.0 and
+     * Calculates hashcode based on stored coordinates. Since we want +0.0 and
      * -0.0 to be treated the same, we ignore the sign of the coordinates.
      */
     @Override

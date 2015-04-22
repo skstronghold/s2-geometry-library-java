@@ -58,20 +58,20 @@ public strictfp class S1IntervalTest extends GeometryTestCase {
 
         // Constructors and accessors.
         S1Interval quad12 = new S1Interval(0, -S2.M_PI);
-        assertEquals(quad12.lo(), 0.0, EPSILON);
-        assertEquals(quad12.hi(), S2.M_PI, EPSILON);
+        assertEquals(quad12.lo(), 0.0, DEFAULT_EPSILON);
+        assertEquals(quad12.hi(), S2.M_PI, DEFAULT_EPSILON);
         S1Interval quad34 = new S1Interval(-S2.M_PI, 0);
-        assertEquals(quad34.lo(), S2.M_PI, EPSILON);
-        assertEquals(quad34.hi(), 0.0, EPSILON);
+        assertEquals(quad34.lo(), S2.M_PI, DEFAULT_EPSILON);
+        assertEquals(quad34.hi(), 0.0, DEFAULT_EPSILON);
         S1Interval pi = new S1Interval(S2.M_PI, S2.M_PI);
-        assertEquals(pi.lo(), S2.M_PI, EPSILON);
-        assertEquals(pi.hi(), S2.M_PI, EPSILON);
+        assertEquals(pi.lo(), S2.M_PI, DEFAULT_EPSILON);
+        assertEquals(pi.hi(), S2.M_PI, DEFAULT_EPSILON);
         S1Interval mipi = new S1Interval(-S2.M_PI, -S2.M_PI);
-        assertEquals(mipi.lo(), S2.M_PI, EPSILON);
-        assertEquals(mipi.hi(), S2.M_PI, EPSILON);
+        assertEquals(mipi.lo(), S2.M_PI, DEFAULT_EPSILON);
+        assertEquals(mipi.hi(), S2.M_PI, DEFAULT_EPSILON);
         S1Interval quad23 = new S1Interval(S2.M_PI_2, -S2.M_PI_2); // inverted
-        assertEquals(quad23.lo(), S2.M_PI_2, EPSILON);
-        assertEquals(quad23.hi(), -S2.M_PI_2, EPSILON);
+        assertEquals(quad23.lo(), S2.M_PI_2, DEFAULT_EPSILON);
+        assertEquals(quad23.hi(), -S2.M_PI_2, DEFAULT_EPSILON);
         S1Interval quad1 = new S1Interval(0, S2.M_PI_2);
 
         // is_valid(), is_empty(), is_inverted()
@@ -88,22 +88,22 @@ public strictfp class S1IntervalTest extends GeometryTestCase {
         assertTrue(mipi.isValid() && !mipi.isEmpty() && !mipi.isInverted());
 
         // GetCenter(), GetLength()
-        assertEquals(quad12.getCenter(), S2.M_PI_2, EPSILON);
-        assertEquals(quad12.getLength(), S2.M_PI, EPSILON);
+        assertEquals(quad12.getCenter(), S2.M_PI_2, DEFAULT_EPSILON);
+        assertEquals(quad12.getLength(), S2.M_PI, DEFAULT_EPSILON);
         assertDoubleNear(new S1Interval(3.1, 2.9).getCenter(), 3.0 - S2.M_PI);
         assertDoubleNear(new S1Interval(-2.9, -3.1).getCenter(), S2.M_PI - 3.0);
         assertDoubleNear(new S1Interval(2.1, -2.1).getCenter(), S2.M_PI);
-        assertEquals(pi.getCenter(), S2.M_PI, EPSILON);
-        assertEquals(pi.getLength(), 0.0, EPSILON);
-        assertEquals(mipi.getCenter(), S2.M_PI, EPSILON);
-        assertEquals(mipi.getLength(), 0.0, EPSILON);
-        assertEquals(Math.abs(quad23.getCenter()), S2.M_PI, EPSILON);
-        assertEquals(Math.abs(quad23.getLength()), S2.M_PI, EPSILON);
+        assertEquals(pi.getCenter(), S2.M_PI, DEFAULT_EPSILON);
+        assertEquals(pi.getLength(), 0.0, DEFAULT_EPSILON);
+        assertEquals(mipi.getCenter(), S2.M_PI, DEFAULT_EPSILON);
+        assertEquals(mipi.getLength(), 0.0, DEFAULT_EPSILON);
+        assertEquals(Math.abs(quad23.getCenter()), S2.M_PI, DEFAULT_EPSILON);
+        assertEquals(Math.abs(quad23.getLength()), S2.M_PI, DEFAULT_EPSILON);
         S1Interval quad123 = new S1Interval(0, -S2.M_PI_2);
         assertDoubleNear(quad123.getCenter(), 0.75 * S2.M_PI);
         assertDoubleNear(quad123.getLength(), 1.5 * S2.M_PI);
         assertTrue(empty.getLength() < 0);
-        assertEquals(full.getLength(), 2 * S2.M_PI, EPSILON);
+        assertEquals(full.getLength(), 2 * S2.M_PI, DEFAULT_EPSILON);
 
         // Complement()
         assertTrue(empty.complement().isFull());

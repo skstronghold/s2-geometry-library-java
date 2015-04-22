@@ -45,9 +45,7 @@ public strictfp class S2RegionCovererTest extends GeometryTestCase {
         }
     }
 
-    public void checkCovering(
-            S2RegionCoverer coverer, S2Region region, ArrayList<S2CellId> covering, boolean interior) {
-
+    public void checkCovering(S2RegionCoverer coverer, S2Region region, ArrayList<S2CellId> covering, boolean interior) {
         // Keep track of how many cells have the same coverer.min_level() ancestor.
         HashMap<S2CellId, Integer> minLevelCells = new HashMap<S2CellId, Integer>();
         for (int i = 0; i < covering.size(); ++i) {

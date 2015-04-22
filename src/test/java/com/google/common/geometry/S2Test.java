@@ -15,6 +15,7 @@
  */
 package com.google.common.geometry;
 
+import com.google.common.math.DoubleMath;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +63,8 @@ public strictfp class S2Test extends GeometryTestCase {
     public void testSTUV() {
         // Check boundary conditions.
         for (double x = -1; x <= 1; ++x) {
-            assertEquals(S2Projections.stToUV(x), x, EPSILON);
-            assertEquals(S2Projections.uvToST(x), x, EPSILON);
+            assertEquals(S2Projections.stToUV(x), x, DEFAULT_EPSILON);
+            assertEquals(S2Projections.uvToST(x), x, DEFAULT_EPSILON);
         }
         // Check that UVtoST and STtoUV are inverses.
         for (double x = -1; x <= 1; x += 0.0001) {
@@ -79,7 +80,7 @@ public strictfp class S2Test extends GeometryTestCase {
         for (int face = 0; face < 6; ++face) {
             S2Point center = S2Projections.faceUvToXyz(face, 0, 0);
             assertEquals(S2Projections.getNorm(face), center);
-            assertEquals(Math.abs(center.get(center.largestAbsComponent())), 1.0, EPSILON);
+            assertEquals(Math.abs(center.get(center.largestAbsComponent())), 1.0, DEFAULT_EPSILON);
             sum = S2Point.add(sum, S2Point.fabs(center));
         }
         assertEquals(sum, new S2Point(2, 2, 2));
@@ -88,7 +89,7 @@ public strictfp class S2Test extends GeometryTestCase {
         for (int face = 0; face < 6; ++face) {
             assertEquals(
                     S2Point.crossProd(S2Projections.getUAxis(face), S2Projections.getVAxis(face)).dotProd(
-                            S2Projections.faceUvToXyz(face, 0, 0)), 1.0, EPSILON);
+                            S2Projections.faceUvToXyz(face, 0, 0)), 1.0, DEFAULT_EPSILON);
         }
 
         // Check that the Hilbert curves on each face combine to form a
@@ -153,16 +154,16 @@ public strictfp class S2Test extends GeometryTestCase {
         S2Point pepsx = new S2Point(eps, 0, 1);
         S2Point pepsy = new S2Point(0, eps, 1);
         double expected1 = 0.5 * eps * eps;
-        assertDoubleNear(S2.area(pepsx, pepsy, pz), expected1, 1e-14 * expected1);
+        assertTrue(DoubleMath.fuzzyEquals(S2.area(pepsx, pepsy, pz), expected1, 1e-14 * expected1));
 
         // Make sure that it can handle degenerate triangles.
         S2Point pr = new S2Point(0.257, -0.5723, 0.112);
         S2Point pq = new S2Point(-0.747, 0.401, 0.2235);
-        assertEquals(S2.area(pr, pr, pr), 0.0, EPSILON);
+        assertEquals(S2.area(pr, pr, pr), 0.0, DEFAULT_EPSILON);
         // TODO: The following test is not exact in optimized mode because the
         // compiler chooses to mix 64-bit and 80-bit intermediate results.
         assertDoubleNear(S2.area(pr, pq, pr), 0);
-        assertEquals(S2.area(p000, p045, p090), 0.0, EPSILON);
+        assertEquals(S2.area(p000, p045, p090), 0.0, DEFAULT_EPSILON);
 
         double maxGirard = 0;
         for (int i = 0; i < 10000; ++i) {
@@ -181,7 +182,7 @@ public strictfp class S2Test extends GeometryTestCase {
         // Try a very long and skinny triangle.
         S2Point p045eps = new S2Point(1, 1, eps);
         double expected2 = 5.8578643762690495119753e-11; // Mathematica.
-        assertDoubleNear(S2.area(p000, p045eps, p090), expected2, 1e-9 * expected2);
+        assertTrue(DoubleMath.fuzzyEquals(S2.area(p000, p045eps, p090), expected2, 1e-9 * expected2));
 
         // Triangles with near-180 degree edges that sum to a quarter-sphere.
         final double eps2 = 1e-10;

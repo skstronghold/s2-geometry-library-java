@@ -336,7 +336,7 @@ public strictfp class S2PolygonBuilderTest extends GeometryTestCase {
     }
 
     boolean evalTristate(int state) {
-        return (state > 0) ? true : (state < 0) ? false : (rand.nextDouble() > 0.5);
+        return (state > 0) ? true : (state < 0) ? false : (RANDOM_GENERATOR.nextDouble() > 0.5);
     }
 
     boolean testBuilder(TestCase test) {
@@ -365,14 +365,14 @@ public strictfp class S2PolygonBuilderTest extends GeometryTestCase {
 
             double minMerge = S1Angle.degrees(test.minMerge).radians();
             double maxMerge = S1Angle.degrees(test.maxMerge).radians();
-            double r = Math.max(0.0, 2 * rand.nextDouble() - 1);
+            double r = Math.max(0.0, 2 * RANDOM_GENERATOR.nextDouble() - 1);
             double maxPerturbation = r * 0.25 * (maxMerge - minMerge);
 
             // Now we set the merge distance chosen randomly within the limits above
             // (min + 2*p and max - 2*p). Half of the time we set the merge distance
             // to the minimum value.
 
-            r = Math.max(0.0, 2 * rand.nextDouble() - 1);
+            r = Math.max(0.0, 2 * RANDOM_GENERATOR.nextDouble() - 1);
             options.setMergeDistance(S1Angle.radians(
                     minMerge + 2 * maxPerturbation + r * (maxMerge - minMerge - 4 * maxPerturbation)));
 

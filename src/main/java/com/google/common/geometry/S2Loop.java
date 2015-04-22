@@ -42,17 +42,13 @@ import java.util.Map;
  * <p>
  * Point containment is defined such that if the sphere is subdivided into
  * faces (loops), every point is contained by exactly one face. This implies
- * that loops do not necessarily contain all (or any) of their vertices An
- * S2LatLngRect represents a latitude-longitude rectangle. It is capable of
- * representing the empty and full rectangles as well as single points.
+ * that loops do not necessarily contain all (or any) of their vertices.
  */
-
 public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
     private static final Logger LOG = LoggerFactory.getLogger(S2Loop.class);
 
     /**
-     * Max angle that intersections can be off by and yet still be considered
-     * colinear.
+     * Max angle that intersections can be off by and yet still be considered collinear.
      */
     public static final double MAX_INTERSECTION_ERROR = 1e-15;
 
@@ -84,8 +80,8 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
 
     /**
      * Initialize a loop connecting the given vertices. The last vertex is
-     * implicitly connected to the first. All points should be unit length. Loops
-     * must have at least 3 vertices.
+     * implicitly connected to the first. All points should be unit length.
+     * Loops must have at least 3 vertices.
      *
      * @param vertices
      */
@@ -94,10 +90,6 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
         this.vertices = new S2Point[numVertices];
         this.bound = S2LatLngRect.full();
         this.depth = 0;
-
-        // if (debugMode) {
-        //  assert (isValid(vertices, DEFAULT_MAX_ADJACENT));
-        // }
 
         vertices.toArray(this.vertices);
 
@@ -116,8 +108,7 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
     }
 
     /**
-     * Like the constructor above, but assumes that the cell's bounding rectangle
-     * has been precomputed.
+     * Like the constructor above, but assumes that the cell's bounding rectangle has been precomputed.
      *
      * @param cell
      * @param bound
@@ -200,7 +191,6 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
     /**
      * Comparator (needed by Comparable interface)
      */
-    @Override
     public int compareTo(S2Loop other) {
         if (numVertices() != other.numVertices()) {
             return this.numVertices() - other.numVertices();
@@ -238,14 +228,12 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
      * Return true if the loop area is at most 2*Pi.
      */
     public boolean isNormalized() {
-        // We allow a bit of error so that exact hemispheres are
-        // considered normalized.
+        // We allow a bit of error so that exact hemispheres are considered normalized.
         return getArea() <= 2 * S2.M_PI + 1e-14;
     }
 
     /**
-     * Invert the loop if necessary so that the area enclosed by the loop is at
-     * most 2*Pi.
+     * Invert the loop if necessary so that the area enclosed by the loop is at most 2*Pi.
      */
     public void normalize() {
         if (!isNormalized()) {
@@ -572,7 +560,6 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
     /**
      * Return a bounding spherical cap.
      */
-    @Override
     public S2Cap getCapBound() {
         return bound.getCapBound();
     }
@@ -581,7 +568,6 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
     /**
      * Return a bounding latitude-longitude rectangle.
      */
-    @Override
     public S2LatLngRect getRectBound() {
         return bound;
     }
@@ -591,7 +577,6 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
      * Otherwise, either the region does not contain the cell or the containment
      * relationship could not be determined.
      */
-    @Override
     public boolean contains(S2Cell cell) {
         // It is faster to construct a bounding rectangle for an S2Cell than for
         // a general polygon. A future optimization could also take advantage of
@@ -610,7 +595,6 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
      * Otherwise, either region intersects the cell, or the intersection
      * relationship could not be determined.
      */
-    @Override
     public boolean mayIntersect(S2Cell cell) {
         // It is faster to construct a bounding rectangle for an S2Cell than for
         // a general polygon. A future optimization could also take advantage of
@@ -633,11 +617,10 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
 
         boolean inside = originInside;
         S2Point origin = S2.origin();
-        S2EdgeUtil.EdgeCrosser crosser = new S2EdgeUtil.EdgeCrosser(origin, p,
-                vertices[numVertices - 1]);
+        S2EdgeUtil.EdgeCrosser crosser = new S2EdgeUtil.EdgeCrosser(origin, p, vertices[numVertices - 1]);
 
         // The s2edgeindex library is not optimized yet for long edges,
-        // so the tradeoff to using it comes with larger loops.
+        // so the trade off to using it comes with larger loops.
         if (numVertices < 2000) {
             for (int i = 0; i < numVertices; i++) {
                 inside ^= crosser.edgeOrVertexCrossing(vertices[i]);
@@ -683,7 +666,7 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
      * so, we do so. Finally an iterator is returned that can be used to perform
      * edge lookups.
      */
-    private final DataEdgeIterator getEdgeIterator(int expectedQueries) {
+    private DataEdgeIterator getEdgeIterator(int expectedQueries) {
         if (index == null) {
             index = new S2EdgeIndex() {
                 @Override
@@ -772,8 +755,7 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
                         crosser.restartAt(vertex(b1));
                     }
 
-                    // Beware, this may return the loop is valid if there is a
-                    // "vertex crossing".
+                    // Beware, this may return the loop is valid if there is a "vertex crossing".
                     // TODO(user): Fix that.
                     crosses = crosser.robustCrossing(vertex(b2)) > 0;
                     previousIndex = b2;

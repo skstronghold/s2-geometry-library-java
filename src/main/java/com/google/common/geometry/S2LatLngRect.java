@@ -22,7 +22,7 @@ import com.google.common.base.Preconditions;
  * representing the empty and full rectangles as well as single points.
  */
 
-public strictfp class S2LatLngRect implements S2Region {
+public final strictfp class S2LatLngRect implements S2Region {
 
     private final R1Interval lat;
     private final S1Interval lng;
@@ -102,8 +102,7 @@ public strictfp class S2LatLngRect implements S2Region {
     public static S2LatLngRect fromPointPair(S2LatLng p1, S2LatLng p2) {
         // assert (p1.isValid() && p2.isValid());
         return new S2LatLngRect(R1Interval.fromPointPair(p1.lat().radians(), p2
-                .lat().radians()), S1Interval.fromPointPair(p1.lng().radians(), p2.lng()
-                .radians()));
+                .lat().radians()), S1Interval.fromPointPair(p1.lng().radians(), p2.lng().radians()));
     }
 
     /**
@@ -195,8 +194,8 @@ public strictfp class S2LatLngRect implements S2Region {
     }
 
     /**
-     * Return true if lng_.lo() > lng_.hi(), i.e. the rectangle crosses the 180
-     * degree latitude line.
+     * Return true if lng_.lo() > lng_.hi(), i.e. the rectangle crosses the
+     * anti-meridian, i.e., 180 degree longitude line.
      */
     public boolean isInverted() {
         return lng.isInverted();
@@ -335,14 +334,11 @@ public strictfp class S2LatLngRect implements S2Region {
     }
 
     /**
-     * More efficient version of Contains() that accepts a S2LatLng rather than an
-     * S2Point.
+     * More efficient version of Contains() that accepts a S2LatLng rather than an S2Point.
      */
     public boolean contains(S2LatLng ll) {
         // assert (ll.isValid());
-        return (lat.contains(ll.lat().radians()) && lng.contains(ll.lng()
-                .radians()));
-
+        return (lat.contains(ll.lat().radians()) && lng.contains(ll.lng().radians()));
     }
 
     /**
@@ -355,18 +351,16 @@ public strictfp class S2LatLngRect implements S2Region {
     }
 
     /**
-     * More efficient version of InteriorContains() that accepts a S2LatLng rather
-     * than an S2Point.
+     * More efficient version of InteriorContains() that accepts a S2LatLng rather than an S2Point.
      */
     public boolean interiorContains(S2LatLng ll) {
         // assert (ll.isValid());
-        return (lat.interiorContains(ll.lat().radians()) && lng
-                .interiorContains(ll.lng().radians()));
+        return (lat.interiorContains(ll.lat().radians()) &&
+                lng.interiorContains(ll.lng().radians()));
     }
 
     /**
-     * Return true if and only if the rectangle contains the given other
-     * rectangle.
+     * Return true if and only if the rectangle contains the given other rectangle.
      */
     public boolean contains(S2LatLngRect other) {
         return lat.contains(other.lat) && lng.contains(other.lng);
@@ -377,8 +371,8 @@ public strictfp class S2LatLngRect implements S2Region {
      * points of the given other rectangle (including its boundary).
      */
     public boolean interiorContains(S2LatLngRect other) {
-        return (lat.interiorContains(other.lat) && lng
-                .interiorContains(other.lng));
+        return (lat.interiorContains(other.lat) &&
+                lng.interiorContains(other.lng));
     }
 
     /**
@@ -462,16 +456,22 @@ public strictfp class S2LatLngRect implements S2Region {
      * point (including the boundary) of the given other rectangle.
      */
     public boolean interiorIntersects(S2LatLngRect other) {
-        return (lat.interiorIntersects(other.lat) && lng
-                .interiorIntersects(other.lng));
+        return (lat.interiorIntersects(other.lat) &&
+                lng.interiorIntersects(other.lng));
     }
 
+    /**
+     * Increase the size of the bounding rectangle to include the given point.
+     * The rectangle is expanded by the minimum amount possible.
+     */
     public S2LatLngRect addPoint(S2Point p) {
         return addPoint(new S2LatLng(p));
     }
 
-    // Increase the size of the bounding rectangle to include the given point.
-    // The rectangle is expanded by the minimum amount possible.
+    /**
+     * Increase the size of the bounding rectangle to include the given lat lng.
+     * The rectangle is expanded by the minimum amount possible.
+     */
     public S2LatLngRect addPoint(S2LatLng ll) {
         // assert (ll.isValid());
         R1Interval newLat = lat.addPoint(ll.lat().radians());
@@ -495,8 +495,9 @@ public strictfp class S2LatLngRect implements S2Region {
         if (isEmpty()) {
             return this;
         }
-        return new S2LatLngRect(lat.expanded(margin.lat().radians()).intersection(
-                fullLat()), lng.expanded(margin.lng().radians()));
+        return new S2LatLngRect(
+                lat.expanded(margin.lat().radians()).intersection(
+                        fullLat()), lng.expanded(margin.lng().radians()));
     }
 
     /**
@@ -540,8 +541,7 @@ public strictfp class S2LatLngRect implements S2Region {
 
         S2LatLngRect r = this;
         for (int k = 0; k < 4; ++k) {
-            S2Cap vertexCap = S2Cap.fromAxisHeight(getVertex(k).toPoint(), cap
-                    .height());
+            S2Cap vertexCap = S2Cap.fromAxisHeight(getVertex(k).toPoint(), cap.height());
             r = r.union(vertexCap.getRectBound());
         }
         return r;
@@ -555,8 +555,7 @@ public strictfp class S2LatLngRect implements S2Region {
             return 0;
         }
 
-        // This is the size difference of the two spherical caps, multiplied by
-        // the longitude ratio.
+        // This is the size difference of the two spherical caps, multiplied by the longitude ratio.
         return lng().getLength() * Math.abs(Math.sin(latHi().radians()) - Math.sin(latLo().radians()));
     }
 
@@ -574,12 +573,10 @@ public strictfp class S2LatLngRect implements S2Region {
 
     /**
      * Return true if the latitude and longitude intervals of the two rectangles
-     * are the same up to the given tolerance (see r1interval.h and s1interval.h
-     * for details).
+     * are the same up to the given tolerance (see r1interval.h and s1interval.h for details).
      */
     public boolean approxEquals(S2LatLngRect other, double maxError) {
-        return (lat.approxEquals(other.lat, maxError) && lng.approxEquals(
-                other.lng, maxError));
+        return (lat.approxEquals(other.lat, maxError) && lng.approxEquals(other.lng, maxError));
     }
 
     public boolean approxEquals(S2LatLngRect other) {
@@ -601,7 +598,6 @@ public strictfp class S2LatLngRect implements S2Region {
         return new S2LatLngRect(this.lo(), this.hi());
     }
 
-    @Override
     public S2Cap getCapBound() {
         // We consider two possible bounding caps, one whose axis passes
         // through the center of the lat-long rectangle and one whose axis
@@ -643,12 +639,10 @@ public strictfp class S2LatLngRect implements S2Region {
         return poleCap;
     }
 
-    @Override
     public S2LatLngRect getRectBound() {
         return this;
     }
 
-    @Override
     public boolean contains(S2Cell cell) {
         // A latitude-longitude rectangle contains a cell if and only if it contains
         // the cell's bounding rectangle. (This is an exact test.)
@@ -662,7 +656,6 @@ public strictfp class S2LatLngRect implements S2Region {
      * intersect the region then it is subdivided, and the accuracy of this method
      * goes up as the cells get smaller.
      */
-    @Override
     public boolean mayIntersect(S2Cell cell) {
         // This test is cheap but is NOT exact (see s2latlngrect.h).
         return intersects(cell.getRectBound());
@@ -678,8 +671,7 @@ public strictfp class S2LatLngRect implements S2Region {
     /**
      * Return true if the edge AB intersects the given edge of constant longitude.
      */
-    private static boolean intersectsLngEdge(S2Point a, S2Point b,
-                                             R1Interval lat, double lng) {
+    private static boolean intersectsLngEdge(S2Point a, S2Point b, R1Interval lat, double lng) {
         // Return true if the segment AB intersects the given edge of constant
         // longitude. The nice thing about edges of constant longitude is that
         // they are straight lines on the sphere (geodesics).
@@ -691,8 +683,7 @@ public strictfp class S2LatLngRect implements S2Region {
     /**
      * Return true if the edge AB intersects the given edge of constant latitude.
      */
-    private static boolean intersectsLatEdge(S2Point a, S2Point b, double lat,
-                                             S1Interval lng) {
+    private static boolean intersectsLatEdge(S2Point a, S2Point b, double lat, S1Interval lng) {
         // Return true if the segment AB intersects the given edge of constant
         // latitude. Unfortunately, lines of constant latitude are curves on
         // the sphere. They can intersect a straight edge in 0, 1, or 2 points.

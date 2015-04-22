@@ -44,8 +44,7 @@ import java.util.*;
  * are from different polygons. (Loops that represent exact hemispheres are
  * allowed.)
  * <p>
- * Loops may share vertices, however no vertex may appear twice in a single
- * loop.
+ * Loops may share vertices, however no vertex may appear twice in a single loop.
  */
 public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon> {
     private static final Logger LOG = LoggerFactory.getLogger(S2Polygon.class);
@@ -57,7 +56,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
     private int numVertices;
 
     /**
-     * Creates an empty polygon that should be initialized by calling Init().
+     * Creates an empty polygon that should be initialized by calling init().
      */
     public S2Polygon() {
         this.loops = Lists.newArrayList();
@@ -67,8 +66,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
     }
 
     /**
-     * Convenience constructor that calls Init() with the given loops. Clears the
-     * given list.
+     * Convenience constructor that calls Init() with the given loops. Clears the given list.
      */
     public S2Polygon(List<S2Loop> loops) {
         this.loops = Lists.newArrayList();
@@ -110,7 +108,6 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
      * imposed by sortValueLoops). - loops must be logically equivalent (even if
      * ordered with a different starting point, e.g. ABCD and BCDA).
      */
-    @Override
     public int compareTo(S2Polygon other) {
         // If number of loops differ, use that.
         if (this.numLoops() != other.numLoops()) {
@@ -137,8 +134,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         // assert (this.loops.isEmpty());
 
         Map<S2Loop, List<S2Loop>> loopMap = Maps.newHashMap();
-        // Yes, a null key is valid. It is used here to refer to the root of the
-        // loopMap
+        // Yes, a null key is valid. It is used here to refer to the root of the loopMap
         loopMap.put(null, Lists.<S2Loop>newArrayList());
 
         for (S2Loop loop : loops) {
@@ -162,7 +158,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         // Starting at null == starting at the root
         initLoop(null, -1, loopMap);
 
-        // TODO(dbeaumont): Add tests or preconditions for these asserts (here and elesewhere).
+        // TODO(dbeaumont): Add tests or preconditions for these asserts (here and else where).
         // forall i != j : containsChild(loop(i), loop(j), loopMap) == loop(i).containsNested(loop(j)));
 
         // Compute the bounding rectangle of the entire polygon.
@@ -483,8 +479,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
             return new LoopVertexIndexPair(loopIndex, vertexInLoop);
         }
 
-        // It is faster to return both vertices at once. It makes a difference
-        // for small polygons.
+        // It is faster to return both vertices at once. It makes a difference for small polygons.
         public abstract S2Edge edgeFromTo(int index);
 
         @Override
@@ -724,8 +719,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
     }
 
     /**
-     * Return a polygon which is the union of the given polygons. Note: clears the
-     * List!
+     * Return a polygon which is the union of the given polygons. Note: clears the List!
      */
     public static S2Polygon destructiveUnion(List<S2Polygon> polygons) {
         return destructiveUnionSloppy(polygons, S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE);
@@ -851,7 +845,6 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
     /**
      * Return a bounding spherical cap.
      */
-    @Override
     public S2Cap getCapBound() {
         return bound.getCapBound();
     }
@@ -860,7 +853,6 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
     /**
      * Return a bounding latitude-longitude rectangle.
      */
-    @Override
     public S2LatLngRect getRectBound() {
         return bound;
     }
@@ -870,7 +862,6 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
      * Otherwise, either the region does not contain the cell or the containment
      * relationship could not be determined.
      */
-    @Override
     public boolean contains(S2Cell cell) {
         if (numLoops() == 1) {
             return loop(0).contains(cell);
@@ -890,7 +881,6 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
      * Otherwise, either region intersects the cell, or the intersection
      * relationship could not be determined.
      */
-    @Override
     public boolean mayIntersect(S2Cell cell) {
         if (numLoops() == 1) {
             return loop(0).mayIntersect(cell);
@@ -1161,7 +1151,6 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
             return point;
         }
 
-        @Override
         public int compareTo(ParametrizedS2Point o) {
             int compareTime = Double.compare(time, o.time);
             if (compareTime != 0) {
