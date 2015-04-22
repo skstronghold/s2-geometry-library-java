@@ -328,7 +328,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
             // Expand the cap by a random factor whose log is uniformly distributed
             // between 0 and log(1e2).
             S2Cap expandedCap =
-                    S2Cap.fromAxisHeight(cap.axis(), Math.min(2.0, Math.pow(1e2, rand.nextDouble())
+                    S2Cap.fromAxisHeight(cap.axis(), Math.min(2.0, Math.pow(1e2, RANDOM_GENERATOR.nextDouble())
                             * cap.height()));
 
             double radius = expandedCap.angle().radians() - cap.angle().radians();
@@ -406,7 +406,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         S2CellUnion cellUnion = new S2CellUnion();
 
         // empty union
-        assertEquals(0.0, cellUnion.averageBasedArea(), EPSILON);
+        assertEquals(0.0, cellUnion.averageBasedArea(), DEFAULT_EPSILON);
 
         ArrayList<S2CellId> ids = Lists.newArrayList();
         ids.add(S2CellId.fromFacePosLevel(1, 0, 1));
@@ -414,7 +414,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         cellUnion.initFromCellIds(ids);
 
         double expected = S2Cell.averageArea(S2CellId.MAX_LEVEL) * (1L + (1L << 58));
-        assertEquals(expected, cellUnion.averageBasedArea(), EPSILON);
+        assertEquals(expected, cellUnion.averageBasedArea(), DEFAULT_EPSILON);
     }
 
     @Test
@@ -422,7 +422,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         S2CellUnion cellUnion = new S2CellUnion();
 
         // empty union
-        assertEquals(0.0, cellUnion.approxArea(), EPSILON);
+        assertEquals(0.0, cellUnion.approxArea(), DEFAULT_EPSILON);
 
         ArrayList<S2CellId> ids = Lists.newArrayList();
         ids.add(S2CellId.fromFacePosLevel(1, 0, 1));
@@ -430,7 +430,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         cellUnion.initFromCellIds(ids);
 
         double expected = new S2Cell(ids.get(0)).approxArea() + new S2Cell(ids.get(1)).approxArea();
-        assertEquals(expected, cellUnion.approxArea(), EPSILON);
+        assertEquals(expected, cellUnion.approxArea(), DEFAULT_EPSILON);
     }
 
     @Test
@@ -438,7 +438,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         S2CellUnion cellUnion = new S2CellUnion();
 
         // empty union
-        assertEquals(0.0, cellUnion.exactArea(), EPSILON);
+        assertEquals(0.0, cellUnion.exactArea(), DEFAULT_EPSILON);
 
         ArrayList<S2CellId> ids = Lists.newArrayList();
         ids.add(S2CellId.fromFacePosLevel(1, 0, 1));
@@ -446,6 +446,6 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         cellUnion.initFromCellIds(ids);
 
         double expected = new S2Cell(ids.get(0)).exactArea() + new S2Cell(ids.get(1)).exactArea();
-        assertEquals(expected, cellUnion.averageBasedArea(), EPSILON);
+        assertEquals(expected, cellUnion.averageBasedArea(), DEFAULT_EPSILON);
     }
 }

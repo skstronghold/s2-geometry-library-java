@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
  * together common code that is needed to implement polygonal geometry such as
  * polylines, loops, and general polygons.
  */
-public strictfp class S2EdgeUtil {
+public final strictfp class S2EdgeUtil {
     /**
      * IEEE floating-point operations have a maximum error of 0.5 ULPS (units in
      * the last place). For double-precision numbers, this works out to 2**-53
@@ -385,7 +385,6 @@ public strictfp class S2EdgeUtil {
          * if the region to the left of A contains the region to the left of B, and
          * 0 otherwise.
          */
-        @Override
         public int test(S2Point a0, S2Point ab1, S2Point a2, S2Point b0, S2Point b2) {
             // For A to contain B (where each loop interior is defined to be its left
             // side), the CCW edge order around ab1 must be a2 b2 b0 a0. We split
@@ -403,7 +402,6 @@ public strictfp class S2EdgeUtil {
          * example, if A,B,C are distinct points ordered CCW around a vertex O, then
          * the wedges BOA, AOC, and COB do not intersect.
          */
-        @Override
         public int test(S2Point a0, S2Point ab1, S2Point a2, S2Point b0, S2Point b2) {
             // For A not to intersect B (where each loop interior is defined to be
             // its left side), the CCW edge order around ab1 must be a0 b2 b0 a2.
@@ -420,7 +418,6 @@ public strictfp class S2EdgeUtil {
          * if A contains B, 0 if A and B are disjoint, and -1 if A intersects but
          * does not contain B.
          */
-        @Override
         public int test(S2Point a0, S2Point ab1, S2Point a2, S2Point b0, S2Point b2) {
             // This is similar to WedgeContainsOrCrosses, except that we want to
             // distinguish cases (1) [A contains B], (3) [A and B are disjoint],
@@ -450,7 +447,6 @@ public strictfp class S2EdgeUtil {
          * the maximum possible result is returned. For example, if A == B then the
          * result is +1.
          */
-        @Override
         public int test(S2Point a0, S2Point ab1, S2Point a2, S2Point b0, S2Point b2) {
             // There are 6 possible edge orderings at a shared vertex (all
             // of these orderings are circular, i.e. abcd == bcda):
@@ -665,13 +661,13 @@ public strictfp class S2EdgeUtil {
         }
     }
 
-    /*
+    /**
      * Given two edges AB and CD such that robustCrossing() is true, return their
      * intersection point. Useful properties of getIntersection (GI):
-     *
+     * <p>
      * (1) GI(b,a,c,d) == GI(a,b,d,c) == GI(a,b,c,d) (2) GI(c,d,a,b) ==
      * GI(a,b,c,d)
-     *
+     * <p>
      * The returned intersection point X is guaranteed to be close to the edges AB
      * and CD, but if the edges intersect at a very small angle then X may not be
      * close to the true mathematical intersection point P. See the description of

@@ -43,6 +43,7 @@ public final strictfp class S2Cap implements S2Region {
 
     // Caps may be constructed from either an axis and a height, or an axis and
     // an angle. To avoid ambiguity, there are no public constructors
+    @SuppressWarnings("unused")
     private S2Cap() {
         axis = new S2Point();
         height = 0;
@@ -132,8 +133,7 @@ public final strictfp class S2Cap implements S2Region {
     }
 
     /**
-     * We allow negative heights (to represent empty caps) but not heights greater
-     * than 2.
+     * We allow negative heights (to represent empty caps) but not heights greater than 2.
      */
     public boolean isValid() {
         return S2.isUnitLength(axis) && height <= 2;
@@ -241,12 +241,11 @@ public final strictfp class S2Cap implements S2Region {
 
     // //////////////////////////////////////////////////////////////////////
     // S2Region interface (see {@code S2Region} for details):
-    @Override
+
     public S2Cap getCapBound() {
         return this;
     }
 
-    @Override
     public S2LatLngRect getRectBound() {
         if (isEmpty()) {
             return S2LatLngRect.empty();
@@ -299,7 +298,6 @@ public final strictfp class S2Cap implements S2Region {
                 lng[0], lng[1]));
     }
 
-    @Override
     public boolean contains(S2Cell cell) {
         // If the cap does not contain all cell vertices, return false.
         // We check the vertices before taking the Complement() because we can't
@@ -318,7 +316,6 @@ public final strictfp class S2Cap implements S2Region {
         return !complement().intersects(cell, vertices);
     }
 
-    @Override
     public boolean mayIntersect(S2Cell cell) {
         // If the cap contains any cell vertex, return true.
         S2Point[] vertices = new S2Point[4];
@@ -332,8 +329,7 @@ public final strictfp class S2Cap implements S2Region {
     }
 
     /**
-     * Return true if the cap intersects 'cell', given that the cap vertices have
-     * alrady been checked.
+     * Return true if the cap intersects 'cell', given that the cap vertices have already been checked.
      */
     public boolean intersects(S2Cell cell, S2Point[] vertices) {
         // Return true if this cap intersects any point of 'cell' excluding its

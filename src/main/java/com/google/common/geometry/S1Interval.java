@@ -15,7 +15,6 @@
  */
 package com.google.common.geometry;
 
-
 /**
  * An S1Interval represents a closed interval on a unit circle (also known as a
  * 1-dimensional sphere). It is capable of representing the empty interval
@@ -34,7 +33,6 @@ package com.google.common.geometry;
  * the point -Pi to construct two special intervals: the Full() interval is
  * [-Pi, Pi], and the Empty() interval is [Pi, -Pi].
  */
-
 public final strictfp class S1Interval implements Cloneable {
 
     private final double lo;
@@ -148,7 +146,9 @@ public final strictfp class S1Interval implements Cloneable {
     }
 
 
-    /* Return true if lo() > hi(). (This is true for empty intervals.) */
+    /**
+     * Return true if lo() > hi(). (This is true for empty intervals.)
+     */
     public boolean isInverted() {
         return lo() > hi();
     }
@@ -191,9 +191,7 @@ public final strictfp class S1Interval implements Cloneable {
         if (lo() == hi()) {
             return full(); // Singleton.
         }
-        return new S1Interval(hi(), lo(), true); // Handles
-        // empty and
-        // full.
+        return new S1Interval(hi(), lo(), true); // Handles empty and full.
     }
 
     /**

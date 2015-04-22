@@ -15,6 +15,7 @@
  */
 package com.google.common.geometry;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import java.util.List;
 
 /**
  * An S2CellUnion is a region consisting of cells of various sizes. Typically a
- * cell union is used to approximate some other shape. There is a tradeoff
+ * cell union is used to approximate some other shape. There is a trade off
  * between the accuracy of the approximation and how many cells are used. Unlike
  * polygons, cells have a fixed hierarchical structure. This makes them more
  * suitable for optimizations based on preprocessing.
@@ -98,7 +99,6 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     /**
      * Enable iteration over the union's cells.
      */
-    @Override
     public Iterator<S2CellId> iterator() {
         return cellIds.iterator();
     }
@@ -158,7 +158,6 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
         cellIds.trimToSize();
     }
 
-
     /**
      * Return true if the cell union contains the given cell id. Containment is
      * defined with respect to regions, e.g. a cell contains its 4 children. This
@@ -197,7 +196,6 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
             pos = -pos - 1;
         }
 
-
         if (pos < cellIds.size() && cellIds.get(pos).rangeMin().lessOrEquals(id.rangeMax())) {
             return true;
         }
@@ -218,14 +216,12 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     /**
      * This is a fast operation (logarithmic in the size of the cell union).
      */
-    @Override
     public boolean contains(S2Cell cell) {
         return contains(cell.id());
     }
 
     /**
-     * Return true if this cell union contain/intersects the given other cell
-     * union.
+     * Return true if this cell union contain/intersects the given other cell union.
      */
     public boolean intersects(S2CellUnion union) {
         // TODO(kirilll?): A divide-and-conquer or alternating-skip-search approach
@@ -238,7 +234,8 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
         return false;
     }
 
-    public void getUnion(S2CellUnion x, S2CellUnion y) {
+    @VisibleForTesting
+    void getUnion(S2CellUnion x, S2CellUnion y) {
         // assert (x != this && y != this);
         cellIds.clear();
         cellIds.ensureCapacity(x.size() + y.size());
@@ -389,7 +386,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
      * Expand the cell union such that it contains all points whose distance to
      * the cell union is at most minRadius, but do not use cells that are more
      * than maxLevelDiff levels higher than the largest cell in the input. The
-     * second parameter controls the tradeoff between accuracy and output size
+     * second parameter controls the trade off between accuracy and output size
      * when a large region is being expanded by a small amount (e.g. expanding
      * Canada by 1km).
      * <p>
@@ -403,8 +400,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
         for (S2CellId id : this) {
             minLevel = Math.min(minLevel, id.level());
         }
-        // Find the maximum level such that all cells are at least "min_radius"
-        // wide.
+        // Find the maximum level such that all cells are at least "min_radius" wide.
         int radiusLevel = S2Projections.MIN_WIDTH.getMaxLevel(minRadius.radians());
         if (radiusLevel == 0 && minRadius.radians() > S2Projections.MIN_WIDTH.getValue(0)) {
             // The requested expansion is greater than the width of a face cell.
@@ -421,7 +417,6 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
         return copy;
     }
 
-    @Override
     public S2Cap getCapBound() {
         // Compute the approximate centroid of the region. This won't produce the
         // bounding cap of minimal area, but it should be close enough.
@@ -450,7 +445,6 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
         return cap;
     }
 
-    @Override
     public S2LatLngRect getRectBound() {
         S2LatLngRect bound = S2LatLngRect.empty();
         for (S2CellId id : this) {
@@ -459,11 +453,9 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
         return bound;
     }
 
-
     /**
      * This is a fast operation (logarithmic in the size of the cell union).
      */
-    @Override
     public boolean mayIntersect(S2Cell cell) {
         return intersects(cell.id());
     }
@@ -491,7 +483,6 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
         }
         return numLeaves;
     }
-
 
     /**
      * Approximate this cell union's area by summing the average area of
@@ -572,8 +563,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
      * false if the union was already normalized
      */
     public boolean normalize() {
-        // Optimize the representation by looking for cases where all subcells
-        // of a parent cell are present.
+        // Optimize the representation by looking for cases where all subcells of a parent cell are present.
 
         ArrayList<S2CellId> output = new ArrayList<S2CellId>(cellIds.size());
         output.ensureCapacity(cellIds.size());
@@ -591,14 +581,12 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
                 output.remove(output.size() - 1);
             }
 
-            // Check whether the last 3 elements of "output" plus "id" can be
-            // collapsed into a single parent cell.
+            // Check whether the last 3 elements of "output" plus "id" can be collapsed into a single parent cell.
             while (output.size() >= 3) {
                 size = output.size();
                 // A necessary (but not sufficient) condition is that the XOR of the
                 // four cells must be zero. This is also very fast to test.
-                if ((output.get(size - 3).id() ^ output.get(size - 2).id() ^ output.get(size - 1).id())
-                        != id.id()) {
+                if ((output.get(size - 3).id() ^ output.get(size - 2).id() ^ output.get(size - 1).id()) != id.id()) {
                     break;
                 }
 

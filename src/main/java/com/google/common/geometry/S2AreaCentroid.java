@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
  * The area of an interior, i.e. the region on the left side of an odd
  * number of loops and optionally a centroid.
  * The area is between 0 and 4*Pi. If it has a centroid, it is
- * the true centroid of the interiord multiplied by the area of the shape.
+ * the true centroid of the interior multiplied by the area of the shape.
  * Note that the centroid may not be contained by the shape.
  *
  * @author dbentley@google.com (Daniel Bentley)

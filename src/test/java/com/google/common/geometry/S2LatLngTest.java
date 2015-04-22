@@ -15,6 +15,7 @@
  */
 package com.google.common.geometry;
 
+import com.google.common.math.DoubleMath;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -60,12 +61,12 @@ public strictfp class S2LatLngTest extends GeometryTestCase {
         assertDoubleNear(
                 new S2LatLng(S2LatLng.fromDegrees(90.0, 65.0).toPoint()).lat().degrees(), 90.0);
         assertEquals(
-                new S2LatLng(S2LatLng.fromRadians(-S2.M_PI_2, 1).toPoint()).lat().radians(), -S2.M_PI_2, EPSILON);
+                new S2LatLng(S2LatLng.fromRadians(-S2.M_PI_2, 1).toPoint()).lat().radians(), -S2.M_PI_2, DEFAULT_EPSILON);
         assertDoubleNear(
                 Math.abs(new S2LatLng(S2LatLng.fromDegrees(12.2, 180.0).toPoint()).lng().degrees()), 180.0);
         assertEquals(
                 Math.abs(new S2LatLng(S2LatLng.fromRadians(0.1, -S2.M_PI).toPoint()).lng().radians()),
-                S2.M_PI, EPSILON);
+                S2.M_PI, DEFAULT_EPSILON);
 
         // Test a bunch of random points.
         for (int i = 0; i < 100000; ++i) {
@@ -82,15 +83,9 @@ public strictfp class S2LatLngTest extends GeometryTestCase {
     @Test
     public void testDistance() {
         assertEquals(
-                S2LatLng.fromDegrees(90, 0).getDistance(S2LatLng.fromDegrees(90, 0)).radians(), 0.0, EPSILON);
-        assertDoubleNear(
-                S2LatLng.fromDegrees(-37, 25).getDistance(S2LatLng.fromDegrees(-66, -155)).degrees(), 77,
-                1e-13);
-        assertDoubleNear(
-                S2LatLng.fromDegrees(0, 165).getDistance(S2LatLng.fromDegrees(0, -80)).degrees(), 115,
-                1e-13);
-        assertDoubleNear(
-                S2LatLng.fromDegrees(47, -127).getDistance(S2LatLng.fromDegrees(-47, 53)).degrees(), 180,
-                2e-6);
+                S2LatLng.fromDegrees(90, 0).getDistance(S2LatLng.fromDegrees(90, 0)).radians(), 0.0, DEFAULT_EPSILON);
+        assertTrue(DoubleMath.fuzzyEquals(S2LatLng.fromDegrees(-37, 25).getDistance(S2LatLng.fromDegrees(-66, -155)).degrees(), (double) 77, 1e-13));
+        assertTrue(DoubleMath.fuzzyEquals(S2LatLng.fromDegrees(0, 165).getDistance(S2LatLng.fromDegrees(0, -80)).degrees(), (double) 115, 1e-13));
+        assertTrue(DoubleMath.fuzzyEquals(S2LatLng.fromDegrees(47, -127).getDistance(S2LatLng.fromDegrees(-47, 53)).degrees(), (double) 180, 2e-6));
     }
 }

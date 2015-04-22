@@ -267,7 +267,7 @@ public strictfp class S2LatLngRectTest extends GeometryTestCase {
 
     @Test
     public void testArea() {
-        assertEquals(0.0, S2LatLngRect.empty().area(), EPSILON);
+        assertEquals(0.0, S2LatLngRect.empty().area(), DEFAULT_EPSILON);
         assertDoubleNear(4 * Math.PI, S2LatLngRect.full().area());
         assertDoubleNear(Math.PI / 2, rectFromDegrees(0, 0, 90, 90).area());
     }

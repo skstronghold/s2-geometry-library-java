@@ -19,7 +19,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.junit.Before;
+import com.google.common.math.DoubleMath;
 
 import java.util.List;
 import java.util.Random;
@@ -28,22 +28,12 @@ import static org.junit.Assert.assertTrue;
 
 public strictfp class GeometryTestCase {
 
-    static final double EPSILON = 0.01;
+    static final double DEFAULT_EPSILON = 0.0000001;
 
-    public Random rand;
-
-    @Before
-    public void setUp() {
-        rand = new Random(123456);
-    }
+    static final Random RANDOM_GENERATOR = new Random(123456);
 
     public void assertDoubleNear(double a, double b) {
-        assertDoubleNear(a, b, 1e-9);
-    }
-
-    public void assertDoubleNear(double a, double b, double error) {
-        assertTrue(a + error > b);
-        assertTrue(a < b + error);
+        assertTrue(DoubleMath.fuzzyEquals(a, b, 1e-9));
     }
 
     // maybe these should be put in a special testing util class
@@ -53,16 +43,16 @@ public strictfp class GeometryTestCase {
      */
     public S2Point randomPoint() {
         return S2Point.normalize(new S2Point(
-                2 * rand.nextDouble() - 1,
-                2 * rand.nextDouble() - 1,
-                2 * rand.nextDouble() - 1));
+                2 * RANDOM_GENERATOR.nextDouble() - 1,
+                2 * RANDOM_GENERATOR.nextDouble() - 1,
+                2 * RANDOM_GENERATOR.nextDouble() - 1));
     }
 
     /**
      * Return a right-handed coordinate frame (three orthonormal vectors). Returns
      * an array of three points: x,y,z
      */
-    public ImmutableList<S2Point> getRandomFrame() {
+    public List<S2Point> getRandomFrame() {
         S2Point p0 = randomPoint();
         S2Point p1 = S2Point.normalize(S2Point.crossProd(p0, randomPoint()));
         S2Point p2 = S2Point.normalize(S2Point.crossProd(p0, p1));
@@ -76,7 +66,7 @@ public strictfp class GeometryTestCase {
      */
     public S2CellId getRandomCellId(int level) {
         int face = random(S2CellId.NUM_FACES);
-        long pos = rand.nextLong() & ((1L << (2 * S2CellId.MAX_LEVEL)) - 1);
+        long pos = RANDOM_GENERATOR.nextLong() & ((1L << (2 * S2CellId.MAX_LEVEL)) - 1);
         return S2CellId.fromFacePosLevel(face, pos, level);
     }
 
@@ -88,20 +78,20 @@ public strictfp class GeometryTestCase {
         if (n == 0) {
             return 0;
         }
-        return rand.nextInt(n);
+        return RANDOM_GENERATOR.nextInt(n);
     }
 
     // Pick "base" uniformly from range [0,maxLog] and then return
     // "base" random bits. The effect is to pick a number in the range
     // [0,2^maxLog-1] with bias towards smaller numbers.
     int skewed(int maxLog) {
-        final int base = Math.abs(rand.nextInt()) % (maxLog + 1);
+        final int base = Math.abs(RANDOM_GENERATOR.nextInt()) % (maxLog + 1);
         // if (!base) return 0; // if 0==base, we & with 0 below.
         //
         // this distribution differs slightly from ACMRandom's Skewed,
         // since 0 occurs approximately 3 times more than 1 here, and
         // ACMRandom's Skewed never outputs 0.
-        return rand.nextInt() & ((1 << base) - 1);
+        return RANDOM_GENERATOR.nextInt() & ((1 << base) - 1);
     }
 
     /**
@@ -137,8 +127,7 @@ public strictfp class GeometryTestCase {
     }
 
     S2Cap getRandomCap(double minArea, double maxArea) {
-        double capArea = maxArea
-                * Math.pow(minArea / maxArea, rand.nextDouble());
+        double capArea = maxArea * Math.pow(minArea / maxArea, RANDOM_GENERATOR.nextDouble());
         assertTrue(capArea >= minArea && capArea <= maxArea);
 
         // The surface area of a cap is 2*Pi times its height.
@@ -157,8 +146,8 @@ public strictfp class GeometryTestCase {
         // height. First we choose a random height, and then we choose a random
         // point along the circle at that height.
 
-        double h = rand.nextDouble() * cap.height();
-        double theta = 2 * S2.M_PI * rand.nextDouble();
+        double h = RANDOM_GENERATOR.nextDouble() * cap.height();
+        double theta = 2 * S2.M_PI * RANDOM_GENERATOR.nextDouble();
         double r = Math.sqrt(h * (2 - h)); // Radius of circle.
 
         // (cos(theta)*r*x + sin(theta)*r*y + (1-h)*z).Normalize()

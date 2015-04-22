@@ -17,6 +17,7 @@
 package com.google.common.geometry;
 
 import com.google.common.collect.Lists;
+import com.google.common.math.DoubleMath;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -194,8 +195,8 @@ public strictfp class S2PolygonTest extends GeometryTestCase {
     private void assertPointApproximatelyEquals(
             S2Loop s2Loop, int vertexIndex, double lat, double lng, double error) {
         S2LatLng latLng = new S2LatLng(s2Loop.vertex(vertexIndex));
-        assertDoubleNear(latLng.latDegrees(), lat, error);
-        assertDoubleNear(latLng.lngDegrees(), lng, error);
+        assertTrue(DoubleMath.fuzzyEquals(latLng.latDegrees(), lat, error));
+        assertTrue(DoubleMath.fuzzyEquals(latLng.lngDegrees(), lng, error));
     }
 
     private void checkEqual(S2Polygon a, S2Polygon b) {
@@ -265,7 +266,7 @@ public strictfp class S2PolygonTest extends GeometryTestCase {
         // java 8 seemed to deliver the coordinates in a somewhat different and order...still correct just not the same
         // as what was hard-coded...so find the offsets from the hardcoded values...plus also will ensure all expected vertices are present
         List<S2LatLng> coordinates = Lists.newArrayList();
-        for(int i = 0; i < s2Loop.numVertices(); i++) {
+        for (int i = 0; i < s2Loop.numVertices(); i++) {
             S2LatLng ll = new S2LatLng(s2Loop.vertex(i));
             coordinates.add(ll);
         }

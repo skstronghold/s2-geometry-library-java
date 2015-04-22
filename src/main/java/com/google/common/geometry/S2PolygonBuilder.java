@@ -50,7 +50,7 @@ import java.util.Stack;
  * 4. As a tool for implementing other polygon operations by generating a
  * collection of directed edges and then assembling them into loops.
  */
-public strictfp class S2PolygonBuilder {
+public final strictfp class S2PolygonBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(S2PolygonBuilder.class);
 
     private Options options;
@@ -62,8 +62,7 @@ public strictfp class S2PolygonBuilder {
     private Map<S2Point, Multiset<S2Point>> edges;
 
     /**
-     * Default constructor for well-behaved polygons. Uses the DIRECTED_XOR
-     * options.
+     * Default constructor for well-behaved polygons. Uses the DIRECTED_XOR options.
      */
     public S2PolygonBuilder() {
         this(Options.DIRECTED_XOR);
@@ -76,7 +75,6 @@ public strictfp class S2PolygonBuilder {
     }
 
     public enum Options {
-
         /**
          * These are the options that should be used for assembling well-behaved
          * input data into polygons. All edges should be directed such that "shells"
@@ -113,7 +111,7 @@ public strictfp class S2PolygonBuilder {
         private boolean validate;
         private S1Angle mergeDistance;
 
-        private Options(boolean undirectedEdges, boolean xorEdges) {
+        Options(boolean undirectedEdges, boolean xorEdges) {
             this.undirectedEdges = undirectedEdges;
             this.xorEdges = xorEdges;
             this.validate = false;

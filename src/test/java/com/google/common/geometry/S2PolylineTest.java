@@ -30,11 +30,6 @@ import static org.junit.Assert.assertTrue;
  */
 public strictfp class S2PolylineTest extends GeometryTestCase {
 
-    @Override
-    public void setUp() {
-        super.setUp();
-    }
-
     @Test
     public void testBasic() {
         List<S2Point> vertices = Lists.newArrayList();
@@ -56,7 +51,7 @@ public strictfp class S2PolylineTest extends GeometryTestCase {
             S2Point z = S2Point.normalize(S2Point.crossProd(x, y));
 
             List<S2Point> vertices = Lists.newArrayList();
-            for (double theta = 0; theta < 2 * S2.M_PI; theta += Math.pow(rand.nextDouble(), 10)) {
+            for (double theta = 0; theta < 2 * S2.M_PI; theta += Math.pow(RANDOM_GENERATOR.nextDouble(), 10)) {
                 S2Point p = S2Point.add(S2Point.mul(x, Math.cos(theta)), S2Point.mul(y, Math.sin(theta)));
                 if (vertices.isEmpty() || !p.equals(vertices.get(vertices.size() - 1))) {
                     vertices.add(p);

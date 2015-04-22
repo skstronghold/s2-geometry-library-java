@@ -21,18 +21,21 @@ package com.google.common.geometry;
  * norm, comparison etc.
  */
 public final strictfp class R2Vector {
+
     private final double x;
     private final double y;
-
-    public R2Vector() {
-        this(0, 0);
-    }
 
     public R2Vector(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
+    @SuppressWarnings("unused")
+    public R2Vector() {
+        this(0, 0);
+    }
+
+    @SuppressWarnings("unused")
     public R2Vector(double[] coord) {
         if (coord.length != 2) {
             throw new IllegalStateException("Points must have exactly 2 coordinates");
@@ -103,7 +106,7 @@ public final strictfp class R2Vector {
     }
 
     /**
-     * Calcualates hashcode based on stored coordinates. Since we want +0.0 and
+     * Calculates hashcode based on stored coordinates. Since we want +0.0 and
      * -0.0 to be treated the same, we ignore the sign of the coordinates.
      */
     @Override

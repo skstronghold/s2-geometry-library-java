@@ -15,6 +15,7 @@
  */
 package com.google.common.geometry;
 
+import com.google.common.math.DoubleMath;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -40,7 +41,7 @@ public strictfp class S2CapTest extends GeometryTestCase {
         assertTrue(full.isValid());
         assertTrue(full.isFull());
         assertTrue(full.complement().isEmpty());
-        assertEquals(full.height(), 2.0, EPSILON);
+        assertEquals(full.height(), 2.0, DEFAULT_EPSILON);
         assertDoubleNear(full.angle().degrees(), 180);
 
         // Containment and intersection of empty and full caps.
@@ -55,12 +56,12 @@ public strictfp class S2CapTest extends GeometryTestCase {
         S2Cap xaxis = S2Cap.fromAxisHeight(new S2Point(1, 0, 0), 0);
         assertTrue(xaxis.contains(new S2Point(1, 0, 0)));
         assertTrue(!xaxis.contains(new S2Point(1, 1e-20, 0)));
-        assertEquals(xaxis.angle().radians(), 0.0, EPSILON);
+        assertEquals(xaxis.angle().radians(), 0.0, DEFAULT_EPSILON);
 
         // Singleton cap containing the y-axis.
         S2Cap yaxis = S2Cap.fromAxisAngle(new S2Point(0, 1, 0), S1Angle.radians(0));
         assertTrue(!yaxis.contains(xaxis.axis()));
-        assertEquals(xaxis.height(), 0.0, EPSILON);
+        assertEquals(xaxis.height(), 0.0, DEFAULT_EPSILON);
 
         // Check that the complement of a singleton cap is the full cap.
         S2Cap xcomp = xaxis.complement();
@@ -86,7 +87,7 @@ public strictfp class S2CapTest extends GeometryTestCase {
         // Basic tests on a hemispherical cap.
         S2Cap hemi = S2Cap.fromAxisHeight(S2Point.normalize(new S2Point(1, 0, 1)), 1);
         assertEquals(hemi.complement().axis(), S2Point.neg(hemi.axis()));
-        assertEquals(hemi.complement().height(), 1.0, EPSILON);
+        assertEquals(hemi.complement().height(), 1.0, DEFAULT_EPSILON);
         assertTrue(hemi.contains(new S2Point(1, 0, 0)));
         assertTrue(!hemi.complement().contains(new S2Point(1, 0, 0)));
         assertTrue(hemi.contains(S2Point.normalize(new S2Point(1, 0, -(1 - EPS)))));
@@ -133,8 +134,9 @@ public strictfp class S2CapTest extends GeometryTestCase {
         // Cap that includes the south pole.
         S2LatLngRect rect =
                 S2Cap.fromAxisAngle(getLatLngPoint(-45, 57), S1Angle.degrees(50)).getRectBound();
-        assertDoubleNear(rect.latLo().degrees(), -90, kDegreeEps);
-        assertDoubleNear(rect.latHi().degrees(), 5, kDegreeEps);
+        double b2 = -90;
+        assertTrue(DoubleMath.fuzzyEquals(rect.latLo().degrees(), b2, kDegreeEps));
+        assertTrue(DoubleMath.fuzzyEquals(rect.latHi().degrees(), (double) 5, kDegreeEps));
         assertTrue(rect.lng().isFull());
 
         // Cap that is tangent to the north pole.
@@ -146,28 +148,30 @@ public strictfp class S2CapTest extends GeometryTestCase {
 
         rect = S2Cap
                 .fromAxisAngle(S2Point.normalize(new S2Point(1, 0, 1)), S1Angle.degrees(45)).getRectBound();
-        assertDoubleNear(rect.latLo().degrees(), 0, kDegreeEps);
-        assertDoubleNear(rect.latHi().degrees(), 90, kDegreeEps);
+        assertTrue(DoubleMath.fuzzyEquals(rect.latLo().degrees(), (double) 0, kDegreeEps));
+        assertTrue(DoubleMath.fuzzyEquals(rect.latHi().degrees(), (double) 90, kDegreeEps));
         assertTrue(rect.lng().isFull());
 
         // The eastern hemisphere.
         rect = S2Cap
                 .fromAxisAngle(new S2Point(0, 1, 0), S1Angle.radians(S2.M_PI_2 + 5e-16)).getRectBound();
-        assertDoubleNear(rect.latLo().degrees(), -90, kDegreeEps);
-        assertDoubleNear(rect.latHi().degrees(), 90, kDegreeEps);
+        double b1 = -90;
+        assertTrue(DoubleMath.fuzzyEquals(rect.latLo().degrees(), b1, kDegreeEps));
+        assertTrue(DoubleMath.fuzzyEquals(rect.latHi().degrees(), (double) 90, kDegreeEps));
         assertTrue(rect.lng().isFull());
 
         // A cap centered on the equator.
         rect = S2Cap.fromAxisAngle(getLatLngPoint(0, 50), S1Angle.degrees(20)).getRectBound();
-        assertDoubleNear(rect.latLo().degrees(), -20, kDegreeEps);
-        assertDoubleNear(rect.latHi().degrees(), 20, kDegreeEps);
-        assertDoubleNear(rect.lngLo().degrees(), 30, kDegreeEps);
-        assertDoubleNear(rect.lngHi().degrees(), 70, kDegreeEps);
+        double b = -20;
+        assertTrue(DoubleMath.fuzzyEquals(rect.latLo().degrees(), b, kDegreeEps));
+        assertTrue(DoubleMath.fuzzyEquals(rect.latHi().degrees(), (double) 20, kDegreeEps));
+        assertTrue(DoubleMath.fuzzyEquals(rect.lngLo().degrees(), (double) 30, kDegreeEps));
+        assertTrue(DoubleMath.fuzzyEquals(rect.lngHi().degrees(), (double) 70, kDegreeEps));
 
         // A cap centered on the north pole.
         rect = S2Cap.fromAxisAngle(getLatLngPoint(90, 123), S1Angle.degrees(10)).getRectBound();
-        assertDoubleNear(rect.latLo().degrees(), 80, kDegreeEps);
-        assertDoubleNear(rect.latHi().degrees(), 90, kDegreeEps);
+        assertTrue(DoubleMath.fuzzyEquals(rect.latLo().degrees(), (double) 80, kDegreeEps));
+        assertTrue(DoubleMath.fuzzyEquals(rect.latHi().degrees(), (double) 90, kDegreeEps));
         assertTrue(rect.lng().isFull());
     }
 

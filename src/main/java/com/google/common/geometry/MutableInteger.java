@@ -25,7 +25,7 @@ package com.google.common.geometry;
  * <p>
  * NOT thread-safe
  */
-public class MutableInteger {
+public final class MutableInteger {
 
     private int value;
     private Integer cachedIntegerValue = null;

@@ -15,6 +15,7 @@
  */
 package com.google.common.geometry;
 
+import com.google.common.math.DoubleMath;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -348,7 +349,7 @@ public strictfp class S2CellTest extends GeometryTestCase {
         System.out.println("Level: " + maxMetric.getValue(level) + " max " + (maxValue + tolerance));
         assertTrue(maxMetric.getValue(level) <= maxValue + tolerance);
         assertTrue(maxMetric.getValue(level) >= maxValue - absError);
-        assertDoubleNear(avgMetric.getValue(level), avgValue, 10 * tolerance);
+        assertTrue(DoubleMath.fuzzyEquals(avgMetric.getValue(level), avgValue, 10 * tolerance));
     }
 
     @Test
