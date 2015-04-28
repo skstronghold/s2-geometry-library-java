@@ -51,7 +51,6 @@ public final strictfp class S2 {
      * exponent of 1234 is 4, when in scientific 'exponent' notation 1234 is
      * {@code 1.234 x 10^3}.
      * <p>
-     * TODO(dbeaumont): Replace this with "DoubleUtils.getExponent(v) - 1" ?
      */
     @VisibleForTesting
     static int exp(double v) {
@@ -65,8 +64,7 @@ public final strictfp class S2 {
     /**
      * Mapping Hilbert traversal order to orientation adjustment mask.
      */
-    private static final int[] POS_TO_ORIENTATION =
-            {SWAP_MASK, 0, 0, INVERT_MASK + SWAP_MASK};
+    private static final int[] POS_TO_ORIENTATION = {SWAP_MASK, 0, 0, INVERT_MASK + SWAP_MASK};
 
     /**
      * Returns an XOR bit mask indicating how the orientation of a child subcell
@@ -74,10 +72,8 @@ public final strictfp class S2 {
      * be XOR'd with the parent cell's orientation to give the orientation of
      * the child cell.
      *
-     * @param position the position of the subcell in the Hilbert traversal, in
-     *                 the range [0,3].
-     * @return a bit mask containing some combination of {@link #SWAP_MASK} and
-     * {@link #INVERT_MASK}.
+     * @param position the position of the subcell in the Hilbert traversal, in the range [0,3].
+     * @return a bit mask containing some combination of {@link #SWAP_MASK} and {@link #INVERT_MASK}.
      * @throws IllegalArgumentException if position is out of bounds.
      */
     public static int posToOrientation(int position) {
@@ -98,12 +94,10 @@ public final strictfp class S2 {
 
     /**
      * Return the IJ-index of the subcell at the given position in the Hilbert
-     * curve traversal with the given orientation. This is the inverse of
-     * {@link #ijToPos}.
+     * curve traversal with the given orientation. This is the inverse of {@link #ijToPos}.
      *
      * @param orientation the subcell orientation, in the range [0,3].
-     * @param position    the position of the subcell in the Hilbert traversal, in
-     *                    the range [0,3].
+     * @param position    the position of the subcell in the Hilbert traversal, in the range [0,3].
      * @return the IJ-index where {@code 0->(0,0), 1->(0,1), 2->(1,0), 3->(1,1)}.
      * @throws IllegalArgumentException if either parameter is out of bounds.
      */
@@ -125,14 +119,12 @@ public final strictfp class S2 {
     };
 
     /**
-     * Returns the order in which a specified subcell is visited by the Hilbert
-     * curve. This is the inverse of {@link #posToIJ}.
+     * Returns the order in which a specified subcell is visited by the Hilbert curve.
+     * This is the inverse of {@link #posToIJ}.
      *
      * @param orientation the subcell orientation, in the range [0,3].
-     * @param ijIndex     the subcell index where
-     *                    {@code 0->(0,0), 1->(0,1), 2->(1,0), 3->(1,1)}.
-     * @return the position of the subcell in the Hilbert traversal, in the range
-     * [0,3].
+     * @param ijIndex     the subcell index where {@code 0->(0,0), 1->(0,1), 2->(1,0), 3->(1,1)}.
+     * @return the position of the subcell in the Hilbert traversal, in the range [0,3].
      * @throws IllegalArgumentException if either parameter is out of bounds.
      */
     public static int ijToPos(int orientation, int ijIndex) {
@@ -184,45 +176,42 @@ public final strictfp class S2 {
 
         /**
          * Return the minimum level such that the metric is at most the given value,
-         * or S2CellId::kMaxLevel if there is no such level. For example,
-         * S2::kMaxDiag.GetMinLevel(0.1) returns the minimum level such that all
-         * cell diagonal lengths are 0.1 or smaller. The return value is always a
-         * valid level.
+         * or {@link com.google.common.geometry.S2CellId#MAX_LEVEL} if there is no such level.
+         * For example, {@link #getMinLevel(double)} [0.1] returns the minimum level such that all
+         * cell diagonal lengths are 0.1 or smaller. The return value is always a valid level.
          */
         public int getMinLevel(double value) {
             if (value <= 0) {
                 return S2CellId.MAX_LEVEL;
             }
-
-            // This code is equivalent to computing a floating-point "level"
-            // value and rounding up.
+            // This code is equivalent to computing a floating-point "level" value and rounding up.
             int exponent = exp(value / ((1 << dim) * deriv));
-            int level = Math.max(0,
-                    Math.min(S2CellId.MAX_LEVEL, -((exponent - 1) >> (dim - 1))));
+            int level = Math.max(0, Math.min(S2CellId.MAX_LEVEL, -((exponent - 1) >> (dim - 1))));
             // assert (level == S2CellId.MAX_LEVEL || getValue(level) <= value);
             // assert (level == 0 || getValue(level - 1) > value);
+            Preconditions.checkState(level == S2CellId.MAX_LEVEL || getValue(level) <= value);
+            Preconditions.checkState(level == 0 || getValue(level - 1) > value);
             return level;
         }
 
         /**
-         * Return the maximum level such that the metric is at least the given
-         * value, or zero if there is no such level. For example,
-         * S2.kMinWidth.GetMaxLevel(0.1) returns the maximum level such that all
-         * cells have a minimum width of 0.1 or larger. The return value is always a
-         * valid level.
+         * Return the maximum level such that the metric is at least the given value,
+         * or zero if there is no such level. For example, {@link #getMaxLevel(double)}
+         * [0.1] returns the maximum level such that all cells have a minimum width of 0.1 or larger.
+         * The return value is always a valid level.
          */
         public int getMaxLevel(double value) {
             if (value <= 0) {
                 return S2CellId.MAX_LEVEL;
             }
-
             // This code is equivalent to computing a floating-point "level"
             // value and rounding down.
             int exponent = exp((1 << dim) * deriv / value);
-            int level = Math.max(0,
-                    Math.min(S2CellId.MAX_LEVEL, ((exponent - 1) >> (dim - 1))));
+            int level = Math.max(0, Math.min(S2CellId.MAX_LEVEL, ((exponent - 1) >> (dim - 1))));
             // assert (level == 0 || getValue(level) >= value);
             // assert (level == S2CellId.MAX_LEVEL || getValue(level + 1) < value);
+            Preconditions.checkState(level == 0 || getValue(level) >= value);
+            Preconditions.checkState(level == S2CellId.MAX_LEVEL || getValue(level + 1) < value);
             return level;
         }
 
@@ -231,27 +220,27 @@ public final strictfp class S2 {
     /**
      * Return a unique "origin" on the sphere for operations that need a fixed
      * reference point. It should *not* be a point that is commonly used in edge
-     * tests in order to avoid triggering code to handle degenerate cases. (This
-     * rules out the north and south poles.)
+     * tests in order to avoid triggering code to handle degenerate cases.
+     * (This rules out the north and south poles.)
      */
     public static S2Point origin() {
         return new S2Point(0, 1, 0);
     }
 
     /**
-     * Return true if the given point is approximately unit length (this is mainly
-     * useful for assertions).
+     * Return true if the given point is approximately unit length
+     * (this is mainly useful for assertions).
      */
     public static boolean isUnitLength(S2Point p) {
         return Math.abs(p.norm2() - 1) <= 1e-15;
     }
 
     /**
-     * Return true if edge AB crosses CD at a point that is interior to both
-     * edges. Properties:
+     * Return true if edge AB crosses CD at a point that is interior to both edges.
+     * Properties:
      * <p>
-     * (1) SimpleCrossing(b,a,c,d) == SimpleCrossing(a,b,c,d) (2)
-     * SimpleCrossing(c,d,a,b) == SimpleCrossing(a,b,c,d)
+     * (1) SimpleCrossing(b,a,c,d) == SimpleCrossing(a,b,c,d)
+     * (2) SimpleCrossing(c,d,a,b) == SimpleCrossing(a,b,c,d)
      */
     public static boolean simpleCrossing(S2Point a, S2Point b, S2Point c, S2Point d) {
         // We compute SimpleCCW() for triangles ACB, CBD, BDA, and DAC. All
@@ -298,15 +287,13 @@ public final strictfp class S2 {
         if (!x.equals(new S2Point(0, 0, 0))) {
             return x;
         }
-
         // The only result that makes sense mathematically is to return zero, but
         // we find it more convenient to return an arbitrary orthogonal vector.
         return ortho(a);
     }
 
     /**
-     * Return a unit-length vector that is orthogonal to "a". Satisfies Ortho(-a)
-     * = -Ortho(a) for all a.
+     * Return a unit-length vector that is orthogonal to "a". Satisfies Ortho(-a) = -Ortho(a) for all a.
      */
     public static S2Point ortho(S2Point a) {
         // The current implementation in S2Point has the property we need,
@@ -330,8 +317,7 @@ public final strictfp class S2 {
         // tan(E/4) = sqrt(tan(s/2) tan((s-a)/2) tan((s-b)/2) tan((s-c)/2))
         //
         // where E is the spherical excess of the triangle (i.e. its area),
-        // a, b, c, are the side lengths, and
-        // s is the semiperimeter (a + b + c) / 2 .
+        // a, b, c, are the side lengths, and s is the semi-perimeter (a + b + c) / 2 .
         //
         // The only significant source of error using l'Huilier's method is the
         // cancellation error of the terms (s-a), (s-b), (s-c). This leads to a
@@ -376,24 +362,22 @@ public final strictfp class S2 {
             }
         }
         // Use l'Huilier's formula.
-        return 4
-                * Math.atan(
-                Math.sqrt(
-                        Math.max(0.0,
-                                Math.tan(0.5 * s) * Math.tan(0.5 * (s - sa)) * Math.tan(0.5 * (s - sb))
-                                        * Math.tan(0.5 * (s - sc)))));
+        return 4 *
+                Math.atan(
+                        Math.sqrt(
+                                Math.max(0.0, Math.tan(0.5 * s) *
+                                        Math.tan(0.5 * (s - sa)) *
+                                        Math.tan(0.5 * (s - sb)) *
+                                        Math.tan(0.5 * (s - sc)))));
     }
 
     /**
      * Return the area of the triangle computed using Girard's formula. This is
-     * slightly faster than the Area() method above is not accurate for very small
-     * triangles.
+     * slightly faster than the S2.area() method but is not accurate for very small triangles.
      */
     public static double girardArea(S2Point a, S2Point b, S2Point c) {
         // This is equivalent to the usual Girard's formula but is slightly
-        // more accurate, faster to compute, and handles a == b == c without
-        // a special case.
-
+        // more accurate, faster to compute, and handles a == b == c without a special case.
         S2Point ab = S2Point.crossProd(a, b);
         S2Point bc = S2Point.crossProd(b, c);
         S2Point ac = S2Point.crossProd(a, c);
@@ -401,8 +385,7 @@ public final strictfp class S2 {
     }
 
     /**
-     * Like Area(), but returns a positive value for counterclockwise triangles
-     * and a negative value otherwise.
+     * Like S2.area(), but returns a positive value for counterclockwise triangles and a negative value otherwise.
      */
     public static double signedArea(S2Point a, S2Point b, S2Point c) {
         return area(a, b, c) * robustCCW(a, b, c);
@@ -410,9 +393,8 @@ public final strictfp class S2 {
 
     // About centroids:
     // ----------------
-    //
     // There are several notions of the "centroid" of a triangle. First, there
-    // // is the planar centroid, which is simply the centroid of the ordinary
+    // is the planar centroid, which is simply the centroid of the ordinary
     // (non-spherical) triangle defined by the three vertices. Second, there is
     // the surface centroid, which is defined as the intersection of the three
     // medians of the spherical triangle. It is possible to show that this
@@ -499,10 +481,8 @@ public final strictfp class S2 {
         // in order to ensure that ABC and CBA are not both CCW. This follows
         // from the following identities (which are true numerically, not just
         // mathematically):
-        //
         // (1) x.CrossProd(y) == -(y.CrossProd(x))
         // (2) (-x).DotProd(y) == -(x.DotProd(y))
-
         return S2Point.crossProd(c, a).dotProd(b) > 0;
     }
 
@@ -511,38 +491,34 @@ public final strictfp class S2 {
      * This means that for nearly collinear AB and AC, this function may return the
      * wrong answer.
      * <p>
-     * <p>
      * Like SimpleCCW(), but returns +1 if the points are counterclockwise and -1
      * if the points are clockwise. It satisfies the following conditions:
      * <p>
-     * (1) RobustCCW(a,b,c) == 0 if and only if a == b, b == c, or c == a (2)
-     * RobustCCW(b,c,a) == RobustCCW(a,b,c) for all a,b,c (3) RobustCCW(c,b,a)
-     * ==-RobustCCW(a,b,c) for all a,b,c
+     * (1) RobustCCW(a,b,c) == 0 if and only if a == b, b == c, or c == a
+     * (2) RobustCCW(b,c,a) == RobustCCW(a,b,c) for all a,b,c
+     * (3) RobustCCW(c,b,a) ==-RobustCCW(a,b,c) for all a,b,c
      * <p>
      * In other words:
      * <p>
-     * (1) The result is zero if and only if two points are the same. (2)
-     * Rotating the order of the arguments does not affect the result. (3)
-     * Exchanging any two arguments inverts the result.
+     * (1) The result is zero if and only if two points are the same.
+     * (2) Rotating the order of the arguments does not affect the result.
+     * (3) Exchanging any two arguments inverts the result.
      * <p>
      * This function is essentially like taking the sign of the determinant of
      * a,b,c, except that it has additional logic to make sure that the above
      * properties hold even when the three points are coplanar, and to deal with
      * the limitations of floating-point arithmetic.
      * <p>
-     * Note: a, b and c are expected to be of unit length. Otherwise, the results
-     * are undefined.
+     * Note: a, b and c are expected to be of unit length. Otherwise, the results are undefined.
      */
     public static int robustCCW(S2Point a, S2Point b, S2Point c) {
         return robustCCW(a, b, c, S2Point.crossProd(a, b));
     }
 
     /**
-     * A more efficient version of RobustCCW that allows the precomputed
-     * cross-product of A and B to be specified.
+     * A more efficient version of RobustCCW that allows the precomputed cross-product of A and B to be specified.
      * <p>
-     * Note: a, b and c are expected to be of unit length. Otherwise, the results
-     * are undefined
+     * Note: a, b and c are expected to be of unit length. Otherwise, the results are undefined
      */
     public static int robustCCW(S2Point a, S2Point b, S2Point c, S2Point aCrossB) {
         // assert (isUnitLength(a) && isUnitLength(b) && isUnitLength(c));
@@ -560,8 +536,7 @@ public final strictfp class S2 {
         double det = aCrossB.dotProd(c);
 
         // Double-check borderline cases in debug mode.
-        // assert ((Math.abs(det) < kMinAbsValue) || (Math.abs(det) > 1000 * kMinAbsValue)
-        //    || (det * expensiveCCW(a, b, c) > 0));
+        // assert ((Math.abs(det) < kMinAbsValue) || (Math.abs(det) > 1000 * kMinAbsValue) || (det * expensiveCCW(a, b, c) > 0));
 
         if (det > kMinAbsValue) {
             return 1;
@@ -575,8 +550,7 @@ public final strictfp class S2 {
     }
 
     /**
-     * A relatively expensive calculation invoked by RobustCCW() if the sign of
-     * the determinant is uncertain.
+     * A relatively expensive calculation invoked by RobustCCW() if the sign of the determinant is uncertain.
      */
     private static int expensiveCCW(S2Point a, S2Point b, S2Point c) {
         // Return zero if and only if two points are the same. This ensures (1).
@@ -602,7 +576,7 @@ public final strictfp class S2 {
         // return consistent results in all cases. For example, if three points are
         // spaced far apart from each other along a great circle, the sign of the
         // result will basically be random (although it will still satisfy the
-        // conditions documented in the header file). The only way to return
+        // conditions as documented). The only way to return
         // consistent results in all cases is to compute the result using
         // arbitrary-precision arithmetic. I considered using the Gnu MP library,
         // but this would be very expensive (up to 2000 bits of precision may be
@@ -625,24 +599,20 @@ public final strictfp class S2 {
         // Sort the difference vectors to find the longest edge, and use the
         // opposite vertex as the origin. If two difference vectors are the same
         // length, we break ties deterministically to ensure that the symmetry
-        // properties guaranteed in the header file will be true.
+        // properties as documented will be true.
         double sign;
         if (dca < dbc || (dca == dbc && a.lessThan(b))) {
             if (dab < dbc || (dab == dbc && a.lessThan(c))) {
                 // The "sab" factor converts A +/- B into B +/- A.
-                sign = S2Point.crossProd(vab, vca).dotProd(a) * sab; // BC is longest
-                // edge
+                sign = S2Point.crossProd(vab, vca).dotProd(a) * sab; // BC is longest edge
             } else {
-                sign = S2Point.crossProd(vca, vbc).dotProd(c) * sca; // AB is longest
-                // edge
+                sign = S2Point.crossProd(vca, vbc).dotProd(c) * sca; // AB is longest edge
             }
         } else {
             if (dab < dca || (dab == dca && b.lessThan(c))) {
-                sign = S2Point.crossProd(vbc, vab).dotProd(b) * sbc; // CA is longest
-                // edge
+                sign = S2Point.crossProd(vbc, vab).dotProd(b) * sbc; // CA is longest edge
             } else {
-                sign = S2Point.crossProd(vca, vbc).dotProd(c) * sca; // AB is longest
-                // edge
+                sign = S2Point.crossProd(vca, vbc).dotProd(c) * sca; // AB is longest edge
             }
         }
         if (sign > 0) {
@@ -662,20 +632,16 @@ public final strictfp class S2 {
         // checking whether the points are ordered CCW around the origin first in
         // the Y-Z plane, then in the Z-X plane, and then in the X-Y plane.
 
-        int ccw =
-                planarOrderedCCW(new R2Vector(a.y, a.z), new R2Vector(b.y, b.z), new R2Vector(c.y, c.z));
+        int ccw = planarOrderedCCW(new R2Vector(a.y, a.z), new R2Vector(b.y, b.z), new R2Vector(c.y, c.z));
         if (ccw == 0) {
-            ccw =
-                    planarOrderedCCW(new R2Vector(a.z, a.x), new R2Vector(b.z, b.x), new R2Vector(c.z, c.x));
+            ccw = planarOrderedCCW(new R2Vector(a.z, a.x), new R2Vector(b.z, b.x), new R2Vector(c.z, c.x));
             if (ccw == 0) {
-                ccw = planarOrderedCCW(
-                        new R2Vector(a.x, a.y), new R2Vector(b.x, b.y), new R2Vector(c.x, c.y));
+                ccw = planarOrderedCCW(new R2Vector(a.x, a.y), new R2Vector(b.x, b.y), new R2Vector(c.x, c.y));
                 // assert (ccw != 0);
             }
         }
         return ccw;
     }
-
 
     public static int planarCCW(R2Vector a, R2Vector b) {
         // Return +1 if the edge AB is CCW around the origin, etc.
@@ -728,8 +694,8 @@ public final strictfp class S2 {
      */
     public static boolean orderedCCW(S2Point a, S2Point b, S2Point c, S2Point o) {
         // The last inequality below is ">" rather than ">=" so that we return true
-        // if A == B or B == C, and otherwise false if A == C. Recall that
-        // RobustCCW(x,y,z) == -RobustCCW(z,y,x) for all x,y,z.
+        // if A == B or B == C, and otherwise false if A == C.
+        // Recall that RobustCCW(x,y,z) == -RobustCCW(z,y,x) for all x,y,z.
 
         int sum = 0;
         if (robustCCW(b, o, a) >= 0) {
@@ -750,8 +716,7 @@ public final strictfp class S2 {
      * Ensures that Angle(a,b,c) == Angle(c,b,a) for all a,b,c.
      * <p>
      * The angle is undefined if A or C is diametrically opposite from B, and
-     * becomes numerically unstable as the length of edge AB or BC approaches 180
-     * degrees.
+     * becomes numerically unstable as the length of edge AB or BC approaches 180 degrees.
      */
     public static double angle(S2Point a, S2Point b, S2Point c) {
         return S2Point.crossProd(a, b).angle(S2Point.crossProd(c, b));
@@ -761,12 +726,9 @@ public final strictfp class S2 {
      * Return the exterior angle at the vertex B in the triangle ABC. The return
      * value is positive if ABC is counterclockwise and negative otherwise. If you
      * imagine an ant walking from A to B to C, this is the angle that the ant
-     * turns at vertex B (positive = left, negative = right). Ensures that
-     * TurnAngle(a,b,c) == -TurnAngle(c,b,a) for all a,b,c.
+     * turns at vertex B (positive = left, negative = right).
+     * Ensures that TurnAngle(a,b,c) == -TurnAngle(c,b,a) for all a,b,c.
      *
-     * @param a
-     * @param b
-     * @param c
      * @return the exterior angle at the vertex B in the triangle ABC
      */
     public static double turnAngle(S2Point a, S2Point b, S2Point c) {
@@ -777,8 +739,7 @@ public final strictfp class S2 {
     }
 
     /**
-     * Return true if two points are within the given distance of each other
-     * (mainly useful for testing).
+     * Return true if two points are within the given distance of each other (mainly useful for testing).
      */
     public static boolean approxEquals(S2Point a, S2Point b, double maxError) {
         return a.angle(b) <= maxError;

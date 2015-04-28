@@ -75,7 +75,7 @@ public strictfp class S2RegionCovererTest extends GeometryTestCase {
         } else {
             S2CellUnion cellUnion = new S2CellUnion();
             cellUnion.initFromCellIds(covering);
-            checkCovering(region, cellUnion, true, new S2CellId());
+            checkCovering(region, cellUnion, true, S2CellId.none());
         }
     }
 

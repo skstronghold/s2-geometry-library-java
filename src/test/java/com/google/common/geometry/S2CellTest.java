@@ -45,21 +45,18 @@ public strictfp class S2CellTest extends GeometryTestCase {
             assertTrue(!cell.isLeaf());
             for (int k = 0; k < 4; ++k) {
                 if (edgeCounts.containsKey(cell.getEdgeRaw(k))) {
-                    edgeCounts.put(cell.getEdgeRaw(k), edgeCounts.get(cell
-                            .getEdgeRaw(k)) + 1);
+                    edgeCounts.put(cell.getEdgeRaw(k), edgeCounts.get(cell.getEdgeRaw(k)) + 1);
                 } else {
                     edgeCounts.put(cell.getEdgeRaw(k), 1);
                 }
 
                 if (vertexCounts.containsKey(cell.getVertexRaw(k))) {
-                    vertexCounts.put(cell.getVertexRaw(k), vertexCounts.get(cell
-                            .getVertexRaw(k)) + 1);
+                    vertexCounts.put(cell.getVertexRaw(k), vertexCounts.get(cell.getVertexRaw(k)) + 1);
                 } else {
                     vertexCounts.put(cell.getVertexRaw(k), 1);
                 }
                 assertDoubleNear(cell.getVertexRaw(k).dotProd(cell.getEdgeRaw(k)), 0);
-                assertDoubleNear(cell.getVertexRaw((k + 1) & 3).dotProd(
-                        cell.getEdgeRaw(k)), 0);
+                assertDoubleNear(cell.getVertexRaw((k + 1) & 3).dotProd(cell.getEdgeRaw(k)), 0);
                 assertDoubleNear(S2Point.normalize(
                         S2Point.crossProd(cell.getVertexRaw(k), cell
                                 .getVertexRaw((k + 1) & 3))).dotProd(cell.getEdge(k)), 1.0);
@@ -129,8 +126,7 @@ public strictfp class S2CellTest extends GeometryTestCase {
             minEdge = Math.min(edge, minEdge);
             maxEdge = Math.max(edge, maxEdge);
             avgEdge += 0.25 * edge;
-            S2Point mid = S2Point.add(cell.getVertexRaw(i), cell
-                    .getVertexRaw((i + 1) & 3));
+            S2Point mid = S2Point.add(cell.getVertexRaw(i), cell.getVertexRaw((i + 1) & 3));
             double width = S2.M_PI_2 - mid.angle(cell.getEdgeRaw(i ^ 2));
             minWidth = Math.min(width, minWidth);
             maxWidth = Math.max(width, maxWidth);
@@ -138,8 +134,7 @@ public strictfp class S2CellTest extends GeometryTestCase {
                 double diag = cell.getVertexRaw(i).angle(cell.getVertexRaw(i ^ 2));
                 minDiag = Math.min(diag, minDiag);
                 maxDiag = Math.max(diag, maxDiag);
-                double angleSpan = cell.getEdgeRaw(i).angle(
-                        S2Point.neg(cell.getEdgeRaw(i ^ 2)));
+                double angleSpan = cell.getEdgeRaw(i).angle(S2Point.neg(cell.getEdgeRaw(i ^ 2)));
                 minAngleSpan = Math.min(angleSpan, minAngleSpan);
                 maxAngleSpan = Math.max(angleSpan, maxAngleSpan);
             }
@@ -263,10 +258,9 @@ public strictfp class S2CellTest extends GeometryTestCase {
                         }
                     }
                     assertTrue(capCount <= 2);
-                    if (childRect.latLo().radians() > -S2.M_PI_2
-                            && childRect.latHi().radians() < S2.M_PI_2) {
-                        // Bounding rectangles may be too large at the poles because the
-                        // pole itself has an arbitrary fixed longitude.
+                    if (childRect.latLo().radians() > -S2.M_PI_2 && childRect.latHi().radians() < S2.M_PI_2) {
+                        // Bounding rectangles may be too large at the poles because
+                        // the pole itself has an arbitrary fixed longitude.
                         assertTrue(rectCount <= 2);
                     }
                 }
@@ -285,8 +279,7 @@ public strictfp class S2CellTest extends GeometryTestCase {
                     forceSubdivide = true;
                 }
             }
-            if (forceSubdivide || cell.level() < (DEBUG_MODE ? 5 : 6)
-                    || random(DEBUG_MODE ? 10 : 4) == 0) {
+            if (forceSubdivide || cell.level() < (DEBUG_MODE ? 5 : 6) || random(DEBUG_MODE ? 10 : 4) == 0) {
                 subdivide(children[i]);
             }
         }
@@ -302,12 +295,9 @@ public strictfp class S2CellTest extends GeometryTestCase {
         // For AverageArea(), the areas themselves are not very accurate, but
         // the average area of a parent is exactly 4 times the area of a child.
 
-        assertTrue(Math.abs(Math.log(exactArea / cell.exactArea())) <= Math
-                .abs(Math.log(1 + 1e-6)));
-        assertTrue(Math.abs(Math.log(approxArea / cell.approxArea())) <= Math
-                .abs(Math.log(1.03)));
-        assertTrue(Math.abs(Math.log(averageArea / cell.averageArea())) <= Math
-                .abs(Math.log(1 + 1e-15)));
+        assertTrue(Math.abs(Math.log(exactArea / cell.exactArea())) <= Math.abs(Math.log(1 + 1e-6)));
+        assertTrue(Math.abs(Math.log(approxArea / cell.approxArea())) <= Math.abs(Math.log(1.03)));
+        assertTrue(Math.abs(Math.log(averageArea / cell.averageArea())) <= Math.abs(Math.log(1 + 1e-15)));
     }
 
     private void minMaxAvg(String label, int level, double count,
@@ -366,10 +356,8 @@ public strictfp class S2CellTest extends GeometryTestCase {
         // cell to the shortest edge of that same cell (and similarly for the
         // maximum diagonal aspect).
 
-        System.out
-                .printf("Level    Area      Edge          Diag          Approx       Average\n");
-        System.out
-                .printf("        Ratio  Ratio Aspect  Ratio Aspect    Min    Max    Min    Max\n");
+        System.out.printf("Level    Area      Edge          Diag          Approx       Average\n");
+        System.out.printf("        Ratio  Ratio Aspect  Ratio Aspect    Min    Max    Min    Max\n");
         for (int i = 0; i <= S2CellId.MAX_LEVEL; ++i) {
             LevelStats s = levelStats.get(i);
             if (s.count > 0) {
@@ -379,13 +367,10 @@ public strictfp class S2CellTest extends GeometryTestCase {
                 s.avgDiag /= s.count;
                 s.avgAngleSpan /= s.count;
             }
-            System.out.printf(
-                    "%5d  %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f\n", i,
+            System.out.printf("%5d  %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f\n", i,
                     s.maxArea / s.minArea, s.maxEdge / s.minEdge, s.maxEdgeAspect,
                     s.maxDiag / s.minDiag, s.maxDiagAspect, s.minApproxRatio,
-                    s.maxApproxRatio, S2Cell.averageArea(i) / s.maxArea, S2Cell
-                            .averageArea(i)
-                            / s.minArea);
+                    s.maxApproxRatio, S2Cell.averageArea(i) / s.maxArea, S2Cell.averageArea(i) / s.minArea);
         }
 
         // Now check the validity of the S2 length and area metrics.
@@ -395,8 +380,7 @@ public strictfp class S2CellTest extends GeometryTestCase {
                 continue;
             }
 
-            System.out.printf(
-                    "Level %2d - metric (error/actual : error/tolerance)\n", i);
+            System.out.printf("Level %2d - metric (error/actual : error/tolerance)\n", i);
 
             // The various length calculations are only accurate to 1e-15 or so,
             // so we need to allow for this amount of discrepancy with the theoretical

@@ -27,7 +27,7 @@ import com.google.common.geometry.S2.Metric;
  * <p>
  * We have implemented three different projections from cell-space (s,t) to
  * cube-space (u,v): linear, quadratic, and tangent. They have the following
- * tradeoffs:
+ * trade offs:
  * <p>
  * Linear - This is the fastest transformation, but also produces the least
  * uniform cell sizes. Cell areas vary by a factor of about 5.2, with the
@@ -56,9 +56,10 @@ import com.google.common.geometry.S2.Metric;
  * from points (unit vectors) respectively.
  * <p>
  * Area Edge Diag ToPoint FromPoint Ratio Ratio Ratio (microseconds)
- * ------------------------------------------------------- Linear: 5.200 2.117
- * 2.959 0.103 0.123 Tangent: 1.414 1.414 1.704 0.290 0.306 Quadratic: 2.082
- * 1.802 1.932 0.116 0.161
+ * ------------------------------------------------------------------
+ * Linear: 5.200 2.117 2.959 0.103 0.123
+ * Tangent: 1.414 1.414 1.704 0.290 0.306
+ * Quadratic: 2.082 1.802 1.932 0.116 0.161
  * <p>
  * The worst-case cell aspect ratios are about the same with all three
  * projections. The maximum ratio of the longest edge to the shortest edge
@@ -81,7 +82,6 @@ public final strictfp class S2Projections {
     // S2_QUADRATIC_PROJECTION is somewhere in between (but generally closer to
     // the tangent projection than the linear one).
 
-
     // The minimum area of any cell at level k is at least MIN_AREA.GetValue(k),
     // and the maximum is at most MAX_AREA.GetValue(k). The average area of all
     // cells at level k is exactly AVG_AREA.GetValue(k).
@@ -99,7 +99,6 @@ public final strictfp class S2Projections {
                                     ? 0.65894981424079037 : // 0.659
                                     0);
     public static final Metric AVG_AREA = new Metric(2, S2.M_PI / 6); // 0.524)
-
 
     // Each cell is bounded by four planes passing through its four edges and
     // the center of the sphere. These metrics relate to the angle between each
@@ -120,7 +119,6 @@ public final strictfp class S2Projections {
                                     ? 0.85244858959960922 : // 0.852
                                     0);
     public static final Metric AVG_ANGLE_SPAN = new Metric(1, S2.M_PI / 4); // 0.785
-
 
     // The width of geometric figure is defined as the distance between two
     // parallel bounding lines in a given direction. For cells, the minimum
@@ -145,7 +143,6 @@ public final strictfp class S2Projections {
                     S2_PROJECTION == Projections.S2_TAN_PROJECTION ? S2.M_PI / (4 * S2.M_SQRT2) : // 0.555
                             S2_PROJECTION == Projections.S2_QUADRATIC_PROJECTION ? S2.M_SQRT2 / 3 : // 0.471
                                     0));
-
     public static final Metric MAX_WIDTH = new Metric(1, MAX_ANGLE_SPAN.deriv());
     public static final Metric AVG_WIDTH = new Metric(1,
             S2_PROJECTION == Projections.S2_LINEAR_PROJECTION ? 0.70572967292222848 : // 0.706
@@ -175,7 +172,6 @@ public final strictfp class S2Projections {
                             S2_PROJECTION == Projections.S2_QUADRATIC_PROJECTION
                                     ? 0.72960687319305303 : // 0.730
                                     0);
-
 
     // The minimum diagonal length of any cell at level k is at least
     // MIN_DIAG.GetValue(k), and the maximum is at most MAX_DIAG.GetValue(k).
@@ -223,14 +219,11 @@ public final strictfp class S2Projections {
             case S2_LINEAR_PROJECTION:
                 return s;
             case S2_TAN_PROJECTION:
-                // Unfortunately, tan(M_PI_4) is slightly less than 1.0. This isn't due
-                // to
+                // Unfortunately, tan(M_PI_4) is slightly less than 1.0. This isn't due to
                 // a flaw in the implementation of tan(), it's because the derivative of
                 // tan(x) at x=pi/4 is 2, and it happens that the two adjacent floating
-                // point numbers on either side of the infinite-precision value of pi/4
-                // have
-                // tangents that are slightly below and slightly above 1.0 when rounded
-                // to
+                // point numbers on either side of the infinite-precision value of pi/4 have
+                // tangents that are slightly below and slightly above 1.0 when rounded to
                 // the nearest double-precision result.
                 s = Math.tan(S2.M_PI_4 * s);
                 return s + (1.0 / (1L << 53)) * s;
@@ -262,10 +255,8 @@ public final strictfp class S2Projections {
         }
     }
 
-
     /**
-     * Convert (face, u, v) coordinates to a direction vector (not necessarily
-     * unit length).
+     * Convert (face, u, v) coordinates to a direction vector (not necessarily unit length).
      */
     public static S2Point faceUvToXyz(int face, double u, double v) {
         switch (face) {

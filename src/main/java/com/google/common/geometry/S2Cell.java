@@ -15,6 +15,8 @@
  */
 package com.google.common.geometry;
 
+import com.google.common.base.MoreObjects;
+
 /**
  * An S2Cell is an S2Region object that represents a cell. Unlike S2CellIds, it
  * supports efficient containment and intersection tests. However, it is also a
@@ -44,7 +46,13 @@ public final strictfp class S2Cell implements S2Region {
         init(id);
     }
 
-    // This is a static method in order to provide named parameters.
+    /**
+     * Return a cell given its face (range 0..5), 61-bit Hilbert curve position
+     * within that face, and level (range 0..MAX_LEVEL). The given position will
+     * be modified to correspond to the Hilbert curve position at the center of
+     * the returned cell. This is a static function rather than a constructor in
+     * order to give names to the arguments.
+     */
     public static S2Cell fromFacePosLevel(int face, byte pos, int level) {
         return new S2Cell(S2CellId.fromFacePosLevel(face, pos, level));
     }
@@ -84,8 +92,7 @@ public final strictfp class S2Cell implements S2Region {
 
     /**
      * Return the k-th vertex of the cell (k = 0,1,2,3). Vertices are returned in
-     * CCW order. The points returned by GetVertexRaw are not necessarily unit
-     * length.
+     * CCW order. The points returned by GetVertexRaw are not necessarily unit length.
      */
     public S2Point getVertexRaw(int k) {
         // Vertices are returned in the order SW, SE, NE, NW.
@@ -112,14 +119,13 @@ public final strictfp class S2Cell implements S2Region {
     /**
      * Return the inward-facing normal of the great circle passing through the
      * edge from vertex k to vertex k+1 (mod 4). The normals returned by
-     * GetEdgeRaw are not necessarily unit length.
+     * getEdgeRaw() are not necessarily unit length.
      * <p>
      * If this is not a leaf cell, set children[0..3] to the four children of
      * this cell (in traversal order) and return true. Otherwise returns false.
      * This method is equivalent to the following:
      * <p>
-     * for (pos=0, id=child_begin(); id != child_end(); id = id.next(), ++pos)
-     * children[i] = S2Cell(id);
+     * for (pos=0, id=child_begin(); id != child_end(); id = id.next(), ++pos) children[i] = S2Cell(id);
      * <p>
      * except that it is more than two times faster.
      */
@@ -155,24 +161,27 @@ public final strictfp class S2Cell implements S2Region {
 
     /**
      * Return the direction vector corresponding to the center in (s,t)-space of
-     * the given cell. This is the point at which the cell is divided into four
-     * subcells; it is not necessarily the centroid of the cell in (u,v)-space or
-     * (x,y,z)-space. The point returned by GetCenterRaw is not necessarily unit
-     * length.
+     * the given cell. This is the point at which the cell is divided into four subcells;
+     * it is not necessarily the centroid of the cell in (u,v)-space or (x,y,z)-space.
      */
     public S2Point getCenter() {
         return S2Point.normalize(getCenterRaw());
     }
 
+    /**
+     * Return the direction vector corresponding to the center in (s,t)-space of
+     * the given cell. This is the point at which the cell is divided into four subcells;
+     * it is not necessarily the centroid of the cell in (u,v)-space or (x,y,z)-space.
+     * The point returned is not necessarily unit length.
+     */
     public S2Point getCenterRaw() {
         return cellId.toPointRaw();
     }
 
     /**
-     * Return the center of the cell in (u,v) coordinates (see {@code
-     * S2Projections}). Note that the center of the cell is defined as the point
-     * at which it is recursively subdivided into four children; in general, it is
-     * not at the midpoint of the (u,v) rectangle covered by the cell
+     * Return the center of the cell in (u,v) coordinates {@see com.google.common.geometry.S2Projections}.
+     * Note that the center of the cell is defined as the point at which it is recursively subdivided
+     * into four children; in general, it is not at the midpoint of the (u,v) rectangle covered by the cell
      */
     public R2Vector getCenterUV() {
         MutableInteger i = new MutableInteger(0);
@@ -198,9 +207,9 @@ public final strictfp class S2Cell implements S2Region {
     }
 
     /**
-     * Return the average area of cells at this level. This is accurate to within
-     * a factor of 1.7 (for S2_QUADRATIC_PROJECTION) and is extremely cheap to
-     * compute.
+     * Return the average area of cells at this level. This is accurate to within a factor of 1.7,
+     * for S2_QUADRATIC_PROJECTION, {@see com.google.common.geometry.S2Projections},
+     * and is extremely cheap to compute.
      */
     public double averageArea() {
         return averageArea(level);
@@ -262,7 +271,7 @@ public final strictfp class S2Cell implements S2Region {
 
     public S2Cap getCapBound() {
         // Use the cell center in (u,v)-space as the cap axis. This vector is
-        // very close to GetCenter() and faster to compute. Neither one of these
+        // very close to getCenter() and faster to compute. Neither one of these
         // vectors yields the bounding cap with minimal surface area, but they
         // are both pretty close.
         //
@@ -287,12 +296,9 @@ public final strictfp class S2Cell implements S2Region {
 
     // The 4 cells around the equator extend to +/-45 degrees latitude at the
     // midpoints of their top and bottom edges. The two cells covering the
-    // poles extend down to +/-35.26 degrees at their vertices.
-    // adding kMaxError (as opposed to the C version) because of asin and atan2
-    // roundoff errors
-    private static final double POLE_MIN_LAT = Math.asin(Math.sqrt(1.0 / 3.0)) - MAX_ERROR;
-    // 35.26 degrees
-
+    // poles extend down to +/-35.26 degrees at their vertices...adding kMaxError
+    // (as opposed to the C version) because of asin and atan2 rounding errors
+    private static final double POLE_MIN_LAT = Math.asin(Math.sqrt(1.0 / 3.0)) - MAX_ERROR; // 35.26 degrees
 
     public S2LatLngRect getRectBound() {
         if (level > 0) {
@@ -412,7 +418,9 @@ public final strictfp class S2Cell implements S2Region {
 
     @Override
     public String toString() {
-        return "[" + face + ", " + level + ", " + orientation + ", " + cellId + "]";
+        return MoreObjects.toStringHelper(this)
+                .add("face", face()).add("level", level)
+                .add("orientation", orientation).add("cellId", cellId).toString();
     }
 
     @Override

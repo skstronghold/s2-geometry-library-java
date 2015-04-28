@@ -337,7 +337,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
             S2CellUnion covering = new S2CellUnion();
             coverer.setMaxCells(1 + skewed(10));
             coverer.getCovering(cap, covering);
-            checkCovering(cap, covering, true, new S2CellId());
+            checkCovering(cap, covering, true, S2CellId.none());
 
             double maxAngle = getMaxAngle(covering, cap.axis());
             int minLevel = S2CellId.MAX_LEVEL;
@@ -345,7 +345,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
                 minLevel = Math.min(minLevel, covering.cellId(j).level());
             }
             covering.expand(S1Angle.radians(radius), maxLevelDiff);
-            checkCovering(expandedCap, covering, false, new S2CellId());
+            checkCovering(expandedCap, covering, false, S2CellId.none());
 
             int expandLevel =
                     Math.min(minLevel + maxLevelDiff, S2Projections.MIN_WIDTH.getMaxLevel(radius));
@@ -355,8 +355,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
             // maximum angle of the covering from the cap axis can increase by up to
             // twice the maximum length of a cell diagonal. We allow for an increase
             // of slightly more than this because cell bounding caps are not exact.
-            assertTrue(expandedMaxAngle - maxAngle <= 2.01 * S2Projections.MAX_DIAG
-                    .getValue(expandLevel));
+            assertTrue(expandedMaxAngle - maxAngle <= 2.01 * S2Projections.MAX_DIAG.getValue(expandLevel));
         }
     }
 

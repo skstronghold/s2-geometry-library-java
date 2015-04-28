@@ -15,12 +15,16 @@
  */
 package com.google.common.geometry;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
+
 import java.util.List;
 import java.util.Locale;
 
 /**
- * An S2CellId is a 64-bit unsigned integer that uniquely identifies a cell in
- * the S2 cell decomposition. It has the following format:
+ * An S2CellId is a 64-bit unsigned integer that uniquely identifies a cell in the S2 cell decomposition.
+ * <p>
+ * It has the following format:
  * <p>
  * <pre>
  * id = [face][face_pos]
@@ -29,10 +33,10 @@ import java.util.Locale;
  * face: a 3-bit number (range 0..5) encoding the cube face.
  * <p>
  * face_pos: a 61-bit number encoding the position of the center of this cell
- * along the Hilbert curve over this face (see the Wiki pages for details).
+ * along the Hilbert curve over this face (see - http://en.wikipedia.org/wiki/Hilbert_curve).
  * <p>
- * Sequentially increasing cell ids follow a continuous space-filling curve over
- * the entire sphere. They have the following properties:
+ * Sequentially increasing cell ids follow a continuous space-filling curve over the entire sphere.
+ * They have the following properties:
  * - The id of a cell at level k consists of a 3-bit face number followed by k
  * bit pairs that recursively select one of the four children of each cell. The
  * next bit is always 1, and all other bits are 0. Therefore, the level of a
@@ -42,9 +46,8 @@ import java.util.Locale;
  * its children (or by its descendants at any level).
  * <p>
  * Leaf cells are often used to represent points on the unit sphere, and this
- * class provides methods for converting directly between these two
- * representations. For cells that represent 2D regions rather than discrete
- * point, it is better to use the S2Cell class.
+ * class provides methods for converting directly between these two representations.
+ * For cells that represent 2D regions rather than a discrete point, it is better to use the S2Cell class.
  */
 public final strictfp class S2CellId implements Comparable<S2CellId> {
 
@@ -65,23 +68,15 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     // "lookup_pos" maps 4 bits of "i", 4 bits of "j", and 2 bits representing the
     // orientation of the current cell into 8 bits representing the order in which
     // that subcell is visited by the Hilbert curve, plus 2 bits indicating the
-    // new orientation of the Hilbert curve within that subcell. (Cell
-    // orientations are represented as combination of kSwapMask and kInvertMask.)
+    // new orientation of the Hilbert curve within that subcell.
+    // (Cell orientations are represented as combination of kSwapMask and kInvertMask.)
     //
-    // "lookup_ij" is an inverted table used for mapping in the opposite
-    // direction.
+    // "lookup_ij" is an inverted table used for mapping in the opposite direction.
     //
     // We also experimented with looking up 16 bits at a time (14 bits of position
     // plus 2 of orientation) but found that smaller lookup tables gave better
     // performance. (2KB fits easily in the primary cache.)
 
-
-    // Values for these constants are *declared* in the *.h file. Even though
-    // the declaration specifies a value for the constant, that declaration
-    // is not a *definition* of storage for the value. Because the values are
-    // supplied in the declaration, we don't need the values here. Failing to
-    // define storage causes link errors for any code that tries to take the
-    // address of one of these values.
     private static final int LOOKUP_BITS = 4;
     private static final int SWAP_MASK = 0x01;
     private static final int INVERT_MASK = 0x02;
@@ -91,7 +86,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
 
     /**
      * This is the offset required to wrap around from the beginning of the
-     * Hilbert curve to the end or vice versa; see next_wrap() and prev_wrap().
+     * Hilbert curve to the end or vice versa; see nextWrap() and prevWrap().
      */
     private static final long WRAP_OFFSET = (long) (NUM_FACES) << POS_BITS;
 
@@ -111,15 +106,11 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         this.id = id;
     }
 
-    public S2CellId() {
-        this.id = 0;
-    }
-
     /**
-     * The default constructor returns an invalid cell id.
+     * The empty constructor returning an invalid cell id.
      */
     public static S2CellId none() {
-        return new S2CellId();
+        return new S2CellId(0L);
     }
 
     /**
@@ -131,7 +122,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     }
 
     /**
-     * Return a cell given its face (range 0..5), 61-bit Hilbert curve position
+     * Return a cell id given its face (range 0..5), 61-bit Hilbert curve position
      * within that face, and level (range 0..MAX_LEVEL). The given position will
      * be modified to correspond to the Hilbert curve position at the center of
      * the returned cell. This is a static function rather than a constructor in
@@ -142,8 +133,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     }
 
     /**
-     * Return the leaf cell containing the given point (a direction vector, not
-     * necessarily unit length).
+     * Return the leaf cell containing the given point (a direction vector, not necessarily unit length).
      */
     public static S2CellId fromPoint(S2Point p) {
         int face = S2Projections.xyzToFace(p);
@@ -160,6 +150,9 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         return fromPoint(ll.toPoint());
     }
 
+    /**
+     * Return the normalized direction vector corresponding to the center of the given cell.
+     */
     public S2Point toPoint() {
         return S2Point.normalize(toPointRaw());
     }
@@ -191,9 +184,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         MutableInteger i = new MutableInteger(0);
         MutableInteger j = new MutableInteger(0);
         int face = toFaceIJOrientation(i, j, null);
-        // System.out.println("i= " + i.intValue() + " j = " + j.intValue());
-        int delta = isLeaf() ? 1 : (((i.intValue() ^ (((int) id) >>> 2)) & 1) != 0)
-                ? 2 : 0;
+        int delta = isLeaf() ? 1 : (((i.intValue() ^ (((int) id) >>> 2)) & 1) != 0) ? 2 : 0;
         int si = (i.intValue() << 1) + delta - MAX_SIZE;
         int ti = (j.intValue() << 1) + delta - MAX_SIZE;
         return faceSiTiToXYZ(face, si, ti);
@@ -270,16 +261,14 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     }
 
     /**
-     * Return true if this is a leaf cell (more efficient than checking whether
-     * level() == MAX_LEVEL).
+     * Return true if this is a leaf cell (more efficient than checking whether level() == MAX_LEVEL).
      */
     public boolean isLeaf() {
         return ((int) id & 1) != 0;
     }
 
     /**
-     * Return true if this is a top-level face cell (more efficient than checking
-     * whether level() == 0).
+     * Return true if this is a top-level face cell (more efficient than checking whether level() == 0).
      */
     public boolean isFace() {
         return (id & (lowestOnBitForLevel(0) - 1)) == 0;
@@ -288,7 +277,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     /**
      * Return the child position (0..3) of this cell's ancestor at the given
      * level, relative to its parent. The argument should be in the range
-     * 1..MAX_LEVEL. For example, child_position(1) returns the position of this
+     * 1..MAX_LEVEL. For example, childPosition(1) returns the position of this
      * cell's level-1 ancestor within its top-level face cell.
      */
     public int childPosition(int level) {
@@ -301,72 +290,111 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     // methods are valid leaf cell ids.
     //
     // These methods should not be used for iteration. If you want to
-    // iterate through all the leaf cells, call child_begin(MAX_LEVEL) and
-    // child_end(MAX_LEVEL) instead.
+    // iterate through all the leaf cells, call childBegin(MAX_LEVEL)
+    // and childEnd(MAX_LEVEL) instead.
     //
-    // It would in fact be error-prone to define a range_end() method,
-    // because (range_max().id() + 1) is not always a valid cell id, and the
+    // It would in fact be error-prone to define a rangeEnd() method,
+    // because (rangeMax().id() + 1) is not always a valid cell id, and the
     // iterator would need to be tested using "<" rather that the usual "!=".
+
+    /**
+     * Minimum leaf cell is *inclusive* contained within the cell.
+     */
     public S2CellId rangeMin() {
         return new S2CellId(id - (lowestOnBit() - 1));
     }
 
+    /**
+     * Maximum leaf cell is *inclusive* contained within the cell.
+     */
     public S2CellId rangeMax() {
         return new S2CellId(id + (lowestOnBit() - 1));
     }
 
     /**
      * Return true if the given cell is contained within this one.
+     * Cell must be valid...other must be valid.
      */
     public boolean contains(S2CellId other) {
         // assert (isValid() && other.isValid());
+        Preconditions.checkState(isValid());
+        Preconditions.checkArgument(other.isValid());
         return other.greaterOrEquals(rangeMin()) && other.lessOrEquals(rangeMax());
     }
 
     /**
      * Return true if the given cell intersects this one.
+     * Cell must be valid...other must be valid.
      */
     public boolean intersects(S2CellId other) {
         // assert (isValid() && other.isValid());
-        return other.rangeMin().lessOrEquals(rangeMax())
-                && other.rangeMax().greaterOrEquals(rangeMin());
+        Preconditions.checkState(isValid());
+        Preconditions.checkArgument(other.isValid());
+        return other.rangeMin().lessOrEquals(rangeMax()) && other.rangeMax().greaterOrEquals(rangeMin());
     }
 
+    /**
+     * Return the parent cell, the cell must be valid and level greater than or equal to 0.
+     */
     public S2CellId parent() {
         // assert (isValid() && level() > 0);
+        Preconditions.checkState(isValid() && level() > 0);
         long newLsb = lowestOnBit() << 2;
         return new S2CellId((id & -newLsb) | newLsb);
     }
 
     /**
-     * Return the cell at the previous level or at the given level (which must be
-     * less than or equal to the current level).
+     * Return the cell at the previous level or at the given level, the cell must be valid
+     * and have a level greater than or equal to 0 and the given level must be less than or
+     * equal to the current level.
      */
     public S2CellId parent(int level) {
         // assert (isValid() && level >= 0 && level <= this.level());
+        Preconditions.checkState(isValid() && level >= 0);
+        Preconditions.checkArgument(level <= level());
         long newLsb = lowestOnBitForLevel(level);
         return new S2CellId((id & -newLsb) | newLsb);
     }
 
+    /**
+     * Return the cell's first child cell, the cell must be valid and have a level less than MAX_LEVEL.
+     */
     public S2CellId childBegin() {
         // assert (isValid() && level() < MAX_LEVEL);
+        Preconditions.checkState(isValid() && level() < MAX_LEVEL);
         long oldLsb = lowestOnBit();
         return new S2CellId(id - oldLsb + (oldLsb >>> 2));
     }
 
+    /**
+     * Return the cell's first child cell at a given level, the cell must be valid
+     * and have a level less than MAX_LEVEL and given level must be less than cell's level.
+     */
     public S2CellId childBegin(int level) {
-        // assert (isValid() && level >= this.level() && level <= MAX_LEVEL);
+        //assert (isValid() && level >= this.level() && level <= MAX_LEVEL);
+        Preconditions.checkState(isValid() && level >= level());
+        Preconditions.checkArgument(level <= MAX_LEVEL);
         return new S2CellId(id - lowestOnBit() + lowestOnBitForLevel(level));
     }
 
+    /**
+     * Return the cell's last child cell, the cell must be valid and have a level less than MAX_LEVEL.
+     */
     public S2CellId childEnd() {
         // assert (isValid() && level() < MAX_LEVEL);
+        Preconditions.checkState(isValid() && level() < MAX_LEVEL);
         long oldLsb = lowestOnBit();
         return new S2CellId(id + oldLsb + (oldLsb >>> 2));
     }
 
+    /**
+     * Return the cell's last child cell at a given level, the cell must be valid
+     * and have a level less than MAX_LEVEL and given level must be less than cell's level.
+     */
     public S2CellId childEnd(int level) {
         // assert (isValid() && level >= this.level() && level <= MAX_LEVEL);
+        Preconditions.checkState(isValid() && level <= MAX_LEVEL);
+        Preconditions.checkArgument(level >= level());
         return new S2CellId(id + lowestOnBit() + lowestOnBitForLevel(level));
     }
 
@@ -404,7 +432,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     /**
      * Like next(), but wraps around from the last face to the first and vice
      * versa. Should *not* be used for iteration in conjunction with
-     * child_begin(), child_end(), Begin(), or End().
+     * childBegin(), childEnd(), begin(), or end().
      */
     public S2CellId nextWrap() {
         S2CellId n = next();
@@ -417,7 +445,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     /**
      * Like prev(), but wraps around from the last face to the first and vice
      * versa. Should *not* be used for iteration in conjunction with
-     * child_begin(), child_end(), Begin(), or End().
+     * childBegin(), childEnd(), begin(), or end().
      */
     public S2CellId prevWrap() {
         S2CellId p = prev();
@@ -427,10 +455,16 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         return new S2CellId(p.id + WRAP_OFFSET);
     }
 
+    /**
+     * First cell at the given level.
+     */
     public static S2CellId begin(int level) {
         return fromFacePosLevel(0, 0, 0).childBegin(level);
     }
 
+    /**
+     * Last cell at the given level.
+     */
     public static S2CellId end(int level) {
         return fromFacePosLevel(5, 0, 0).childEnd(level);
     }
@@ -559,8 +593,8 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
 
     /**
      * Return the four cells that are adjacent across the cell's four edges.
-     * Neighbors are returned in the order defined by S2Cell::GetEdge. All
-     * neighbors are guaranteed to be distinct.
+     * Neighbors are returned in the order defined by {@link com.google.common.geometry.S2Cell#getEdge(int)}.
+     * All neighbors are guaranteed to be distinct.
      */
     public void getEdgeNeighbors(S2CellId neighbors[]) {
 
@@ -595,6 +629,8 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         // "level" must be strictly less than this cell's level so that we can
         // determine which vertex this cell is closest to.
         // assert (level < this.level());
+        Preconditions.checkArgument(level < level());
+
         MutableInteger i = new MutableInteger(0);
         MutableInteger j = new MutableInteger(0);
         int face = toFaceIJOrientation(i, j, null);
@@ -622,12 +658,9 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         }
 
         output.add(parent(level));
-        output
-                .add(fromFaceIJSame(face, i.intValue() + ioffset, j.intValue(), isame)
-                        .parent(level));
-        output
-                .add(fromFaceIJSame(face, i.intValue(), j.intValue() + joffset, jsame)
-                        .parent(level));
+        output.add(fromFaceIJSame(face, i.intValue() + ioffset, j.intValue(), isame).parent(level));
+        output.add(fromFaceIJSame(face, i.intValue(), j.intValue() + joffset, jsame).parent(level));
+
         // If i- and j- edge neighbors are *both* on a different face, then this
         // vertex only has three neighbors (it is one of the 8 cube vertices).
         if (isame || jsame) {
@@ -639,8 +672,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     /**
      * Append all neighbors of this cell at the given level to "output". Two cells
      * X and Y are neighbors if their boundaries intersect but their interiors do
-     * not. In particular, two cells that intersect at a single point are
-     * neighbors.
+     * not. In particular, two cells that intersect at a single point are neighbors.
      * <p>
      * Requires: nbr_level >= this->level(). Note that for cells adjacent to a
      * face vertex, the same neighbor may be appended more than once.
@@ -660,6 +692,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
 
         int nbrSize = 1 << (MAX_LEVEL - nbrLevel);
         // assert (nbrSize <= size);
+        Preconditions.checkArgument(nbrSize <= size);
 
         // We compute the N-S, E-W, and diagonal neighbors in one pass.
         // The loop test is at the end of the loop to avoid 32-bit overflow.
@@ -679,8 +712,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
             }
             // East, West, and Diagonal neighbors.
             output.add(fromFaceIJSame(face, i.intValue() - nbrSize,
-                    j.intValue() + k, sameFace && i.intValue() - size >= 0).parent(
-                    nbrLevel));
+                    j.intValue() + k, sameFace && i.intValue() - size >= 0).parent(nbrLevel));
             output.add(fromFaceIJSame(face, i.intValue() + size, j.intValue() + k,
                     sameFace && i.intValue() + size < MAX_SIZE).parent(nbrLevel));
             if (k >= size) {
@@ -693,8 +725,8 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     // Low-level methods.
 
     /**
-     * Return a leaf cell given its cube face (range 0..5) and i- and
-     * j-coordinates (see s2.h).
+     * Return a leaf cell given its cube face (range 0..5) and i- and j-coordinates,
+     * {@see com.google.common.geometry.S2}.
      */
     public static S2CellId fromFaceIJ(int face, int i, int j) {
         // Optimization notes:
@@ -787,11 +819,8 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
 
         bits = LOOKUP_IJ[bits];
 
-        i.setValue(i.intValue()
-                + ((bits >> (LOOKUP_BITS + 2)) << (k * LOOKUP_BITS)));
-
-        j.setValue(j.intValue()
-                + ((((bits >> 2) & ((1 << LOOKUP_BITS) - 1))) << (k * LOOKUP_BITS)));
+        i.setValue(i.intValue() + ((bits >> (LOOKUP_BITS + 2)) << (k * LOOKUP_BITS)));
+        j.setValue(j.intValue() + ((((bits >> 2) & ((1 << LOOKUP_BITS) - 1))) << (k * LOOKUP_BITS)));
 
         bits &= (SWAP_MASK | INVERT_MASK);
         return bits;
@@ -815,22 +844,20 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     }
 
     /**
-     * Return the i- or j-index of the leaf cell containing the given s- or
-     * t-value.
+     * Return the i- or j-index of the leaf cell containing the given s- or t-value.
      */
-    private static int stToIJ(double s) {
+    public static int stToIJ(double s) {
         // Converting from floating-point to integers via static_cast is very slow
         // on Intel processors because it requires changing the rounding mode.
         // Rounding to the nearest integer using FastIntRound() is much faster.
 
         final int m = MAX_SIZE / 2; // scaling multiplier
-        return (int) Math
-                .max(0, Math.min(2 * m - 1, Math.round(m * s + (m - 0.5))));
+        return (int) Math.max(0, Math.min(2 * m - 1, Math.round(m * s + (m - 0.5))));
     }
 
     /**
-     * Convert (face, si, ti) coordinates (see s2.h) to a direction vector (not
-     * necessarily unit length).
+     * Convert (face, si, ti) coordinates ({@see com.google.common.geometry.S2}) to a direction vector,
+     * (not necessarily unit length).
      */
     private static S2Point faceSiTiToXYZ(int face, int si, int ti) {
         final double kScale = 1.0 / MAX_SIZE;
@@ -866,8 +893,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     }
 
     /**
-     * Public helper function that calls FromFaceIJ if sameFace is true, or
-     * FromFaceIJWrap if sameFace is false.
+     * Public helper function that calls FromFaceIJ if sameFace is true, or FromFaceIJWrap if sameFace is false.
      */
     public static S2CellId fromFaceIJSame(int face, int i, int j, boolean sameFace) {
         if (sameFace) {
@@ -875,15 +901,6 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         } else {
             return S2CellId.fromFaceIJWrap(face, i, j);
         }
-    }
-
-    @Override
-    public boolean equals(Object that) {
-        if (!(that instanceof S2CellId)) {
-            return false;
-        }
-        S2CellId x = (S2CellId) that;
-        return id() == x.id();
     }
 
     /**
@@ -917,15 +934,23 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     }
 
     @Override
+    public boolean equals(Object that) {
+        if (!(that instanceof S2CellId)) {
+            return false;
+        }
+        S2CellId x = (S2CellId) that;
+        return id() == x.id();
+    }
+
+    @Override
     public int hashCode() {
         return (int) ((id >>> 32) + id);
     }
 
-
     @Override
     public String toString() {
-        return "(face=" + face() + ", pos=" + Long.toHexString(pos()) + ", level="
-                + level() + ")";
+        return MoreObjects.toStringHelper(this)
+                .add("face", face()).add("pos", Long.toHexString(pos())).add("level", level()).toString();
     }
 
     private static void initLookupCell(int level, int i, int j, int origOrientation, int pos, int orientation) {
