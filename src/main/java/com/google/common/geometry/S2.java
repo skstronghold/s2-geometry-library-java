@@ -21,12 +21,12 @@ import com.google.common.base.Preconditions;
 public final strictfp class S2 {
 
     // Declare some frequently used constants
+    public static final double M_E = Math.E;
     public static final double M_PI = Math.PI;
     public static final double M_1_PI = 1.0 / Math.PI;
     public static final double M_PI_2 = Math.PI / 2.0;
     public static final double M_PI_4 = Math.PI / 4.0;
     public static final double M_SQRT2 = Math.sqrt(2);
-    public static final double M_E = Math.E;
 
     // Together these flags define a cell orientation. If SWAP_MASK
     // is true, then canonical traversal order is flipped around the
@@ -166,7 +166,7 @@ public final strictfp class S2 {
 
         /**
          * Return the level at which the metric has approximately the given value.
-         * For example, S2::kAvgEdge.GetClosestLevel(0.1) returns the level at which
+         * For example, {@code GetClosestLevel(0.1)} returns the level at which
          * the average cell edge length is approximately 0.1. The return value is
          * always a valid level.
          */
@@ -177,7 +177,7 @@ public final strictfp class S2 {
         /**
          * Return the minimum level such that the metric is at most the given value,
          * or {@link com.google.common.geometry.S2CellId#MAX_LEVEL} if there is no such level.
-         * For example, {@link #getMinLevel(double)} [0.1] returns the minimum level such that all
+         * For example, {@code #getMinLevel(0.1)} returns the minimum level such that all
          * cell diagonal lengths are 0.1 or smaller. The return value is always a valid level.
          */
         public int getMinLevel(double value) {
@@ -196,8 +196,8 @@ public final strictfp class S2 {
 
         /**
          * Return the maximum level such that the metric is at least the given value,
-         * or zero if there is no such level. For example, {@link #getMaxLevel(double)}
-         * [0.1] returns the maximum level such that all cells have a minimum width of 0.1 or larger.
+         * or zero if there is no such level. For example, {@code #getMaxLevel(0.1)}
+         * returns the maximum level such that all cells have a minimum width of 0.1 or larger.
          * The return value is always a valid level.
          */
         public int getMaxLevel(double value) {
@@ -268,9 +268,10 @@ public final strictfp class S2 {
      * <p>
      * It satisfies the following properties (RCP == RobustCrossProd):
      * <p>
-     * (1) RCP(a,b) != 0 for all a, b (2) RCP(b,a) == -RCP(a,b) unless a == b or
-     * a == -b (3) RCP(-a,b) == -RCP(a,b) unless a == b or a == -b (4) RCP(a,-b)
-     * == -RCP(a,b) unless a == b or a == -b
+     * (1) RCP(a,b) != 0 for all a, b
+     * (2) RCP(b,a) == -RCP(a,b) unless a == b or a == -b
+     * (3) RCP(-a,b) == -RCP(a,b) unless a == b or a == -b
+     * (4) RCP(a,-b) == -RCP(a,b) unless a == b or a == -b
      */
     public static S2Point robustCrossProd(S2Point a, S2Point b) {
         // The direction of a.CrossProd(b) becomes unstable as (a + b) or (a - b)
@@ -293,7 +294,8 @@ public final strictfp class S2 {
     }
 
     /**
-     * Return a unit-length vector that is orthogonal to "a". Satisfies Ortho(-a) = -Ortho(a) for all a.
+     * Return a unit-length vector that is orthogonal to "a".
+     * Satisfies Ortho(-a) = -Ortho(a) for all a.
      */
     public static S2Point ortho(S2Point a) {
         // The current implementation in S2Point has the property we need,
@@ -372,8 +374,8 @@ public final strictfp class S2 {
     }
 
     /**
-     * Return the area of the triangle computed using Girard's formula. This is
-     * slightly faster than the S2.area() method but is not accurate for very small triangles.
+     * Return the area of the triangle computed using Girard's formula.
+     * This is slightly faster than the S2.area() method but is not accurate for very small triangles.
      */
     public static double girardArea(S2Point a, S2Point b, S2Point c) {
         // This is equivalent to the usual Girard's formula but is slightly

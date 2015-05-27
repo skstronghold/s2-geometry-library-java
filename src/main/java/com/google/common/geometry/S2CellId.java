@@ -37,17 +37,23 @@ import java.util.Locale;
  * <p>
  * Sequentially increasing cell ids follow a continuous space-filling curve over the entire sphere.
  * They have the following properties:
- * - The id of a cell at level k consists of a 3-bit face number followed by k
- * bit pairs that recursively select one of the four children of each cell. The
- * next bit is always 1, and all other bits are 0. Therefore, the level of a
- * cell is determined by the position of its lowest-numbered bit that is turned
- * on (for a cell at level k, this position is 2 * (MAX_LEVEL - k).)
- * - The id of a parent cell is at the midpoint of the range of ids spanned by
- * its children (or by its descendants at any level).
+ * <ul>
+ *     <li>
+ *      The id of a cell at level k consists of a 3-bit face number followed by k
+ *      bit pairs that recursively select one of the four children of each cell. The
+ *      next bit is always 1, and all other bits are 0. Therefore, the level of a
+ *      cell is determined by the position of its lowest-numbered bit that is turned
+ *      on (for a cell at level k, this position is 2 * (MAX_LEVEL - k).)
+ *    </li><li>
+ *      The id of a parent cell is at the midpoint of the range of ids spanned by
+ *      its children (or by its descendants at any level).
+ *    </li>
+ * </ul>
  * <p>
  * Leaf cells are often used to represent points on the unit sphere, and this
  * class provides methods for converting directly between these two representations.
- * For cells that represent 2D regions rather than a discrete point, it is better to use the S2Cell class.
+ * For cells that represent 2D regions rather than a discrete point,
+ * it is better to use the {@link S2Cell}.
  */
 public final strictfp class S2CellId implements Comparable<S2CellId> {
 
@@ -133,7 +139,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     }
 
     /**
-     * Return the leaf cell containing the given point (a direction vector, not necessarily unit length).
+     * Return the leaf cell containing the given {@link S2Point} (a direction vector, not necessarily unit length).
      */
     public static S2CellId fromPoint(S2Point p) {
         int face = S2Projections.xyzToFace(p);
@@ -144,7 +150,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     }
 
     /**
-     * Return the leaf cell containing the given S2LatLng.
+     * Return the leaf cell containing the given {@link S2LatLng}.
      */
     public static S2CellId fromLatLng(S2LatLng ll) {
         return fromPoint(ll.toPoint());
@@ -191,7 +197,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     }
 
     /**
-     * Return the S2LatLng corresponding to the center of the given cell.
+     * Return the {@link S2LatLng} corresponding to the center of the given cell.
      */
     public S2LatLng toLatLng() {
         return new S2LatLng(toPointRaw());
@@ -205,7 +211,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     }
 
     /**
-     * Return true if id() represents a valid cell.
+     * Return true if {@link #id()} represents a valid cell.
      */
     public boolean isValid() {
         return face() < NUM_FACES && ((lowestOnBit() & (0x1555555555555555L)) != 0);
@@ -220,7 +226,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
 
     /**
      * The position of the cell center along the Hilbert curve over this face, in
-     * the range 0..(2**kPosBits-1).
+     * the range 0..(2**POS_BITS-1).
      */
     public long pos() {
         return (id & (-1L >>> FACE_BITS));
@@ -241,8 +247,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
         } else {
             x = (int) (id >>> 32);
         }
-        // We only need to look at even-numbered bits to determine the
-        // level of a valid cell id.
+        // We only need to look at even-numbered bits to determine the level of a valid cell id.
         x &= -x; // Get lowest bit.
         if ((x & 0x00005555) != 0) {
             level += 8;
@@ -725,8 +730,8 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     // Low-level methods.
 
     /**
-     * Return a leaf cell given its cube face (range 0..5) and i- and j-coordinates,
-     * {@see com.google.common.geometry.S2}.
+     * Return a leaf cell given its cube face (range 0..5) and i- and j-coordinates.
+     * @see com.google.common.geometry.S2
      */
     public static S2CellId fromFaceIJ(int face, int i, int j) {
         // Optimization notes:
@@ -856,7 +861,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
     }
 
     /**
-     * Convert (face, si, ti) coordinates ({@see com.google.common.geometry.S2}) to a direction vector,
+     * Convert (face, si, ti) coordinates (@see com.google.common.geometry.S2) to a direction vector,
      * (not necessarily unit length).
      */
     private static S2Point faceSiTiToXYZ(int face, int si, int ti) {

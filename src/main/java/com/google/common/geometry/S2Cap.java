@@ -16,16 +16,19 @@
 package com.google.common.geometry;
 
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
+
 /**
- * This class represents a spherical cap, i.e. a portion of a sphere cut off by
- * a plane. The cap is defined by its axis and height. This representation has
- * good numerical accuracy for very small caps (unlike the (axis,
- * min-distance-from-origin) representation), and is also efficient for
- * containment tests (unlike the (axis, angle) representation).
+ * This class represents a spherical cap, i.e. a portion of a sphere cut off by a plane.
+ * The cap is defined by its axis and height. This representation has good numerical accuracy
+ * for very small caps (unlike the (axis, min-distance-from-origin) representation), and is also
+ * efficient for containment tests (unlike the (axis, angle) representation).
  * <p>
- * Here are some useful relationships between the cap height (h), the cap
- * opening angle (theta), the maximum chord length from the cap's center (d),
- * and the radius of cap's base (a). All formulas assume a unit radius.
+ * Here are some useful relationships between the cap height (h), the cap opening angle (theta),
+ * the maximum chord length from the cap's center (d), and the radius of cap's base (a).
+ * All formulas assume a unit radius.
  * <p>
  * h = 1 - cos(theta) = 2 sin^2(theta/2) d^2 = 2 h = a^2 + h^2
  */
@@ -33,16 +36,16 @@ public final strictfp class S2Cap implements S2Region {
 
     /**
      * Multiply a positive number by this constant to ensure that the result of a
-     * floating point operation is at least as large as the true
-     * infinite-precision result.
+     * floating point operation is at least as large as the true infinite-precision result.
      */
     private static final double ROUND_UP = 1.0 + 1.0 / (1L << 52);
 
     private final S2Point axis;
     private final double height;
 
-    // Caps may be constructed from either an axis and a height, or an axis and
-    // an angle. To avoid ambiguity, there are no public constructors
+    // Caps may be constructed from either an axis and a height, or an axis and an angle.
+    // To avoid ambiguity, there are no public constructors.
+
     @SuppressWarnings("unused")
     private S2Cap() {
         axis = new S2Point();
@@ -52,22 +55,22 @@ public final strictfp class S2Cap implements S2Region {
     private S2Cap(S2Point axis, double height) {
         this.axis = axis;
         this.height = height;
-        // assert (isValid());
+        Preconditions.checkState(isValid());
     }
 
     /**
      * Create a cap given its axis and the cap height, i.e. the maximum projected
-     * distance along the cap axis from the cap center. 'axis' should be a
-     * unit-length vector.
+     * distance along the cap axis from the cap center...'axis' must be a unit-length vector.
      */
     public static S2Cap fromAxisHeight(S2Point axis, double height) {
         // assert (S2.isUnitLength(axis));
+        Preconditions.checkArgument(S2.isUnitLength(axis));
         return new S2Cap(axis, height);
     }
 
     /**
      * Create a cap given its axis and the cap opening angle, i.e. maximum angle
-     * between the axis and a point on the cap. 'axis' should be a unit-length
+     * between the axis and a point on the cap...'axis' must be a unit-length
      * vector, and 'angle' should be between 0 and 180 degrees.
      */
     public static S2Cap fromAxisAngle(S2Point axis, S1Angle angle) {
@@ -76,17 +79,19 @@ public final strictfp class S2Cap implements S2Region {
         // Computing it as 2*(sin(angle/2)**2) gives much better precision.
 
         // assert (S2.isUnitLength(axis));
+        Preconditions.checkArgument(S2.isUnitLength(axis));
         double d = Math.sin(0.5 * angle.radians());
         return new S2Cap(axis, 2 * d * d);
 
     }
 
     /**
-     * Create a cap given its axis and its area in steradians. 'axis' should be a
+     * Create a cap given its axis and its area in steradians...'axis' must be a
      * unit-length vector, and 'area' should be between 0 and 4 * M_PI.
      */
     public static S2Cap fromAxisArea(S2Point axis, double area) {
         // assert (S2.isUnitLength(axis));
+        Preconditions.checkArgument(S2.isUnitLength(axis));
         return new S2Cap(axis, area / (2 * S2.M_PI));
     }
 
@@ -119,13 +124,12 @@ public final strictfp class S2Cap implements S2Region {
     }
 
     /**
-     * Return the cap opening angle in radians, or a negative number for empty
-     * caps.
+     * Return the cap opening angle in radians, or a negative number for empty caps.
      */
     public S1Angle angle() {
         // This could also be computed as acos(1 - height_), but the following
-        // formula is much more accurate when the cap height is small. It
-        // follows from the relationship h = 1 - cos(theta) = 2 sin^2(theta/2).
+        // formula is much more accurate when the cap height is small. It follows
+        // from the relationship h = 1 - cos(theta) = 2 sin^2(theta/2).
         if (isEmpty()) {
             return S1Angle.radians(-1);
         }
@@ -167,52 +171,50 @@ public final strictfp class S2Cap implements S2Region {
     }
 
     /**
-     * Return true if and only if this cap contains the given other cap (in a set
-     * containment sense, e.g. every cap contains the empty cap).
+     * Return true if and only if this cap contains the given other cap (in a set containment sense,
+     * e.g. every cap contains the empty cap).
      */
     public boolean contains(S2Cap other) {
         if (isFull() || other.isEmpty()) {
             return true;
         }
-        return angle().radians() >= axis.angle(other.axis)
-                + other.angle().radians();
+        return angle().radians() >= axis.angle(other.axis) + other.angle().radians();
     }
 
     /**
-     * Return true if and only if the interior of this cap intersects the given
-     * other cap. (This relationship is not symmetric, since only the interior of
-     * this cap is used.)
+     * Return true if and only if the interior of this cap intersects the given other cap.
+     * (This relationship is not symmetric, since only the interior of this cap is used.)
      */
     public boolean interiorIntersects(S2Cap other) {
-        // Interior(X) intersects Y if and only if Complement(Interior(X))
-        // does not contain Y.
+        // interior(X) intersects Y if and only if complement(Interior(X)) does not contain Y.
         return !complement().contains(other);
     }
 
     /**
-     * Return true if and only if the given point is contained in the interior of
-     * the region (i.e. the region excluding its boundary). 'p' should be a
-     * unit-length vector.
+     * Return true if and only if the given point is contained in the interior of the region
+     * (i.e. the region excluding its boundary). 'p' must be a unit-length vector.
      */
     public boolean interiorContains(S2Point p) {
         // assert (S2.isUnitLength(p));
+        Preconditions.checkArgument(S2.isUnitLength(p));
         return isFull() || S2Point.sub(axis, p).norm2() < 2 * height;
     }
 
     /**
      * Increase the cap height if necessary to include the given point. If the cap
      * is empty the axis is set to the given point, but otherwise it is left
-     * unchanged. 'p' should be a unit-length vector.
+     * unchanged...'p' must be a unit-length vector.
      */
     public S2Cap addPoint(S2Point p) {
         // Compute the squared chord length, then convert it into a height.
         // assert (S2.isUnitLength(p));
+        Preconditions.checkArgument(S2.isUnitLength(p));
         if (isEmpty()) {
             return new S2Cap(p, 0);
         } else {
             // To make sure that the resulting cap actually includes this point,
             // we need to round up the distance calculation. That is, after
-            // calling cap.AddPoint(p), cap.Contains(p) should be true.
+            // calling cap.addPoint(p), cap.contains(p) should be true.
             double dist2 = S2Point.sub(axis, p).norm2();
             double newHeight = Math.max(height, ROUND_UP * 0.5 * dist2);
             return new S2Cap(axis, newHeight);
@@ -221,13 +223,17 @@ public final strictfp class S2Cap implements S2Region {
 
     // Increase the cap height if necessary to include "other". If the current
     // cap is empty it is set to the given other cap.
+
+    /**
+     * Increase the cap height if necessary to include "other". If the current
+     * cap is empty it is set to the given other cap.
+     */
     public S2Cap addCap(S2Cap other) {
         if (isEmpty()) {
             return new S2Cap(other.axis, other.height);
         } else {
-            // See comments for FromAxisAngle() and AddPoint(). This could be
-            // optimized by doing the calculation in terms of cap heights rather
-            // than cap opening angles.
+            // See comments for fromAxisAngle() and addPoint(). This could be
+            // optimized by doing the calculation in terms of cap heights rather than cap opening angles.
             double angle = axis.angle(other.axis) + other.angle().radians();
             if (angle >= S2.M_PI) {
                 return new S2Cap(axis, 2); //Full cap
@@ -240,7 +246,7 @@ public final strictfp class S2Cap implements S2Region {
     }
 
     // //////////////////////////////////////////////////////////////////////
-    // S2Region interface (see {@code S2Region} for details):
+    // S2Region interface (see {@link S2Region} for details):
 
     public S2Cap getCapBound() {
         return this;
@@ -279,6 +285,7 @@ public final strictfp class S2Cap implements S2Region {
             // of tangency between the cap boundary and a line of longitude. Then
             // C is a right angle, and letting a,b,c denote the sides opposite A,B,C,
             // we have sin(a)/sin(A) = sin(c)/sin(C), or sin(A) = sin(a)/sin(c).
+            //
             // Here "a" is the cap angle, and "c" is the colatitude (90 degrees
             // minus the latitude). This formula also works for negative latitudes.
             //
@@ -288,21 +295,17 @@ public final strictfp class S2Cap implements S2Region {
             double sinC = Math.cos(axisLatLng.lat().radians());
             if (sinA <= sinC) {
                 double angleA = Math.asin(sinA / sinC);
-                lng[0] = Math.IEEEremainder(axisLatLng.lng().radians() - angleA,
-                        2 * S2.M_PI);
-                lng[1] = Math.IEEEremainder(axisLatLng.lng().radians() + angleA,
-                        2 * S2.M_PI);
+                lng[0] = Math.IEEEremainder(axisLatLng.lng().radians() - angleA, 2 * S2.M_PI);
+                lng[1] = Math.IEEEremainder(axisLatLng.lng().radians() + angleA, 2 * S2.M_PI);
             }
         }
-        return new S2LatLngRect(new R1Interval(lat[0], lat[1]), new S1Interval(
-                lng[0], lng[1]));
+        return new S2LatLngRect(new R1Interval(lat[0], lat[1]), new S1Interval(lng[0], lng[1]));
     }
 
     public boolean contains(S2Cell cell) {
         // If the cap does not contain all cell vertices, return false.
-        // We check the vertices before taking the Complement() because we can't
-        // accurately represent the complement of a very small cap (a height
-        // of 2-epsilon is rounded off to 2).
+        // We check the vertices before taking the complement() because we can't
+        // accurately represent the complement of a very small cap (a height of 2-epsilon is rounded off to 2).
         S2Point[] vertices = new S2Point[4];
         for (int k = 0; k < 4; ++k) {
             vertices[k] = cell.getVertex(k);
@@ -312,7 +315,7 @@ public final strictfp class S2Cap implements S2Region {
         }
         // Otherwise, return true if the complement of the cap does not intersect
         // the cell. (This test is slightly conservative, because technically we
-        // want Complement().InteriorIntersects() here.)
+        // want complement().interiorIntersects() here.)
         return !complement().intersects(cell, vertices);
     }
 
@@ -368,7 +371,7 @@ public final strictfp class S2Cap implements S2Region {
                 // (because we know the axis is not contained with the cell).
                 continue;
             }
-            // The Norm2() factor is necessary because "edge" is not normalized.
+            // The norm2() factor is necessary because "edge" is not normalized.
             if (dot * dot > sin2Angle * edge.norm2()) {
                 return false; // Entire cap is on the exterior side of this edge.
             }
@@ -376,17 +379,19 @@ public final strictfp class S2Cap implements S2Region {
             // the interior of the cap. We just need to check whether the point
             // of closest approach occurs between the two edge endpoints.
             S2Point dir = S2Point.crossProd(edge, axis);
-            if (dir.dotProd(vertices[k]) < 0
-                    && dir.dotProd(vertices[(k + 1) & 3]) > 0) {
+            if (dir.dotProd(vertices[k]) < 0 && dir.dotProd(vertices[(k + 1) & 3]) > 0) {
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * The point 'p' should be a unit-length vector.
+     */
     public boolean contains(S2Point p) {
-        // The point 'p' should be a unit-length vector.
         // assert (S2.isUnitLength(p));
+        Preconditions.checkArgument(S2.isUnitLength(p));
         return S2Point.sub(axis, p).norm2() <= 2 * height;
 
     }
@@ -397,15 +402,12 @@ public final strictfp class S2Cap implements S2Region {
      */
     @Override
     public boolean equals(Object that) {
-
         if (!(that instanceof S2Cap)) {
             return false;
         }
-
         S2Cap other = (S2Cap) that;
         return (axis.equals(other.axis) && height == other.height)
                 || (isEmpty() && other.isEmpty()) || (isFull() && other.isFull());
-
     }
 
     @Override
@@ -422,14 +424,13 @@ public final strictfp class S2Cap implements S2Region {
         return result;
     }
 
-    // /////////////////////////////////////////////////////////////////////
-    // The following static methods are convenience functions for assertions
-    // and testing purposes only.
-
     /**
-     * Return true if the cap axis and height differ by at most "max_error" from
-     * the given cap "other".
+     * Return true if the cap axis and height differ by at most "max_error" from the given cap "other".
+     *
+     * @param other cap to compare for approximate equality
+     * @param maxError maximum axis and height difference allowed
      */
+    @VisibleForTesting
     boolean approxEquals(S2Cap other, double maxError) {
         return (axis.aequal(other.axis, maxError) && Math.abs(height - other.height) <= maxError)
                 || (isEmpty() && other.height <= maxError)
@@ -438,12 +439,19 @@ public final strictfp class S2Cap implements S2Region {
                 || (other.isFull() && height >= 2 - maxError);
     }
 
+    /**
+     * Return true if the cap axis and height are approximately equal.
+     *
+     * @param other cap to compare for approximate equality
+     */
+    @VisibleForTesting
     boolean approxEquals(S2Cap other) {
         return approxEquals(other, 1e-14);
     }
 
     @Override
     public String toString() {
-        return "[Point = " + axis.toString() + " Height = " + height + "]";
+        return MoreObjects.toStringHelper(this)
+                .add("point", axis).add("height", height).toString();
     }
 }

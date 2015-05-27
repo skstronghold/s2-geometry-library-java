@@ -15,22 +15,25 @@
  */
 package com.google.common.geometry;
 
+import com.google.common.base.MoreObjects;
+
 /**
- * This class represents a point on the unit sphere as a pair of
- * latitude-longitude coordinates. Like the rest of the "geometry" package, the
- * intent is to represent spherical geometry as a mathematical abstraction, so
- * functions that are specifically related to the Earth's geometry (e.g.
+ * This class represents a point on the unit sphere as a pair of latitude-longitude coordinates.
+ * Like the rest of the "geometry" package, the intent is to represent spherical geometry (S2) as a
+ * mathematical abstraction, so functions that are specifically related to the Earth's geometry (e.g.
  * easting/northing conversions) should be put elsewhere.
  */
 public final strictfp class S2LatLng {
 
-    // DEPRECATED: the original earth radius measure used in this code was...
-    // ...the Earth's Meridional radii, i.e., radius of curvature in the (north-south) meridian
+    // DEPRECATED: the original earth radius measure used in this code was the Earth's Meridional radii,
+    // i.e., radius of curvature in the (north-south) meridian..it's commented out below...
+
     // Approximate "effective" radius of the Earth in meters.
     // public static final double EARTH_RADIUS_METERS = 6367000.0;
 
     /**
-     * Earth Mean radii estimated from a ellipsoidal model, i.e., WGS84
+     * Earth Mean radii estimated from an ellipsoidal model, i.e., WGS84
+     * TODO: find a better place for this...doesn't seem like it belongs attached to this class
      */
     public static final double EARTH_RADIUS_METERS = 6371000.0;
 
@@ -63,10 +66,9 @@ public final strictfp class S2LatLng {
     }
 
     public static S1Angle latitude(S2Point p) {
-        // We use atan2 rather than asin because the input vector is not necessarily
-        // unit length, and atan2 is much more accurate than asin near the poles.
-        return S1Angle.radians(
-                Math.atan2(p.get(2), Math.sqrt(p.get(0) * p.get(0) + p.get(1) * p.get(1))));
+        // We use atan2 rather than asin because the input vector is not necessarily unit length,
+        // and atan2 is much more accurate than asin near the poles.
+        return S1Angle.radians(Math.atan2(p.get(2), Math.sqrt(p.get(0) * p.get(0) + p.get(1) * p.get(1))));
     }
 
     public static S1Angle longitude(S2Point p) {
@@ -83,7 +85,7 @@ public final strictfp class S2LatLng {
     }
 
     /**
-     * Basic constructor. The latitude and longitude must be within the ranges allowed by is_valid() below.
+     * Basic constructor. The latitude and longitude must be within the ranges allowed by {@link #isValid()}.
      * <p>
      * TODO(dbeaumont): Make this a static factory method (fromLatLng() ?).
      */
@@ -92,29 +94,20 @@ public final strictfp class S2LatLng {
     }
 
     /**
-     * Default constructor for convenience when declaring arrays, etc.
-     * <p>
-     * TODO(dbeaumont): Remove the default constructor (just use CENTER).
-     */
-    public S2LatLng() {
-        this(0, 0);
-    }
-
-    /**
      * Convert a point (not necessarily normalized) to an S2LatLng.
      * <p>
      * TODO(dbeaumont): Make this a static factory method (fromPoint() ?).
      */
     public S2LatLng(S2Point p) {
-        this(Math.atan2(p.z, Math.sqrt(p.x * p.x + p.y * p.y)), Math.atan2(p.y, p.x));
         // The latitude and longitude are already normalized. We use atan2 to
         // compute the latitude because the input vector is not necessarily unit
         // length, and atan2 is much more accurate than asin near the poles.
         // Note that atan2(0, 0) is defined to be zero.
+        this(Math.atan2(p.z, Math.sqrt(p.x * p.x + p.y * p.y)), Math.atan2(p.y, p.x));
     }
 
     /**
-     * Returns the latitude of this point as a new S1Angle.
+     * Returns the latitude of this point as a new {@link S1Angle}.
      */
     public S1Angle lat() {
         return S1Angle.radians(latRadians);
@@ -135,7 +128,7 @@ public final strictfp class S2LatLng {
     }
 
     /**
-     * Returns the longitude of this point as a new S1Angle.
+     * Returns the longitude of this point as a new {@link S1Angle}.
      */
     public S1Angle lng() {
         return S1Angle.radians(lngRadians);
@@ -156,36 +149,31 @@ public final strictfp class S2LatLng {
     }
 
     /**
-     * Return true if the latitude is between -90 and 90 degrees inclusive and the
-     * longitude is between -180 and 180 degrees inclusive.
+     * Return true if the latitude is between -90 and 90 degrees inclusive and
+     * the longitude is between -180 and 180 degrees inclusive.
      */
     public boolean isValid() {
         return Math.abs(lat().radians()) <= S2.M_PI_2 && Math.abs(lng().radians()) <= S2.M_PI;
     }
 
     /**
-     * Returns a new S2LatLng based on this instance for which {@link #isValid()}
-     * will be {@code true}.
+     * Returns a new S2LatLng based on this instance for which {@link #isValid()} will be {@code true}.
      * <ul>
      * <li>Latitude is clipped to the range {@code [-90, 90]}
      * <li>Longitude is normalized to be in the range {@code [-180, 180]}
      * </ul>
-     * <p>If the current point is valid then the returned point will have the same
-     * coordinates.
+     * <p>If the current point is valid then the returned point will have the same coordinates.
      */
     public S2LatLng normalized() {
         // drem(x, 2 * S2.M_PI) reduces its argument to the range
         // [-S2.M_PI, S2.M_PI] inclusive, which is what we want here.
-        return new S2LatLng(Math.max(-S2.M_PI_2, Math.min(S2.M_PI_2, lat().radians())),
+        return new S2LatLng(
+                Math.max(-S2.M_PI_2, Math.min(S2.M_PI_2, lat().radians())),
                 Math.IEEEremainder(lng().radians(), 2 * S2.M_PI));
     }
 
-    // Clamps the latitude to the range [-90, 90] degrees, and adds or subtracts
-    // a multiple of 360 degrees to the longitude if necessary to reduce it to
-    // the range [-180, 180].
-
     /**
-     * Convert an S2LatLng to the equivalent unit-length vector (S2Point).
+     * Convert an S2LatLng to the equivalent unit-length vector ({@link S2Point}).
      */
     public S2Point toPoint() {
         double phi = lat().radians();
@@ -219,7 +207,7 @@ public final strictfp class S2LatLng {
         // Return the distance (measured along the surface of the sphere) to the
         // given S2LatLng. This is mathematically equivalent to:
         //
-        // S1Angle::FromRadians(ToPoint().Angle(o.ToPoint())
+        // S1Angle.fromRadians(toPoint().angle(o.toPoint())
         //
         // but this implementation is slightly more efficient.
     }
@@ -302,10 +290,12 @@ public final strictfp class S2LatLng {
 
     @Override
     public String toString() {
-        return "(" + latRadians + ", " + lngRadians + ")";
+        return MoreObjects.toStringHelper(this)
+                .add("latRadians", latRadians).add("lngRadians", lngRadians).toString();
     }
 
     public String toStringDegrees() {
-        return "(" + latDegrees() + ", " + lngDegrees() + ")";
+        return MoreObjects.toStringHelper(this)
+                .add("latDegress", latDegrees()).add("lngDegrees", lngDegrees()).toString();
     }
 }

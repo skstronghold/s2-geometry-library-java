@@ -16,6 +16,7 @@
 package com.google.common.geometry;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
@@ -35,53 +36,84 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     /**
      * The CellIds that form the Union
      */
-    private ArrayList<S2CellId> cellIds = new ArrayList<S2CellId>();
+    private ArrayList<S2CellId> cellIds = new ArrayList<>();
 
     public S2CellUnion() {
     }
 
+    /**
+     * Creates a cell union with the given {@link S2CellId}(s) and then calls {@link #normalize()}.
+     *
+     * @param cellIds cell ids that form the union
+     */
     public void initFromCellIds(ArrayList<S2CellId> cellIds) {
         initRawCellIds(cellIds);
         normalize();
     }
 
     /**
-     * Populates a cell union with the given S2CellIds or 64-bit cells ids, and
-     * then calls Normalize(). The InitSwap() version takes ownership of the
-     * vector data without copying and clears the given vector. These methods may
-     * be called multiple times.
+     * Creates a cell union with the given 64-bit cells id values, and then calls {@link #normalize()}.
+     *
+     * @param cellIds 64-bit cell id values that form the union
      */
     public void initFromIds(ArrayList<Long> cellIds) {
         initRawIds(cellIds);
         normalize();
     }
 
+    /**
+     * Populates a cell union with the given {@link S2CellId}(s) and then calls {@link #normalize()}.
+     *
+     * Takes ownership of the input {@link java.util.ArrayList} data without copying and clears it.
+     *
+     * @param cellIds cell ids that form the union
+     */
     public void initSwap(ArrayList<S2CellId> cellIds) {
         initRawSwap(cellIds);
         normalize();
     }
 
+    /**
+     * Like {@link #initFromCellIds(ArrayList)}, but does not call {@link #normalize()}.
+     *
+     * The cell union *must* be normalized before doing any calculations with it,
+     * so it is the caller's responsibility to make sure that the input is normalized.
+     * This method is useful when converting cell unions to another representation and back.
+     *
+     * @param cellIds cell ids that form the union
+     */
     public void initRawCellIds(ArrayList<S2CellId> cellIds) {
         this.cellIds = cellIds;
     }
 
+    /**
+     * Like {@link #initFromIds(ArrayList)}, but does not call {@link #normalize()}.
+     *
+     * The cell union *must* be normalized before doing any calculations with it,
+     * so it is the caller's responsibility to make sure that the input is normalized.
+     * This method is useful when converting cell unions to another representation and back.
+     *
+     * @param cellIds 64-bit cell id values that form the union
+     */
     public void initRawIds(ArrayList<Long> cellIds) {
         int size = cellIds.size();
-        this.cellIds = new ArrayList<S2CellId>(size);
+        this.cellIds = new ArrayList<>(size);
         for (Long id : cellIds) {
             this.cellIds.add(new S2CellId(id));
         }
     }
 
     /**
-     * Like Init(), but does not call Normalize(). The cell union *must* be
-     * normalized before doing any calculations with it, so it is the caller's
-     * responsibility to make sure that the input is normalized. This method is
-     * useful when converting cell unions to another representation and back.
-     * These methods may be called multiple times.
+     * Like {@link #initSwap(ArrayList)}, but does not call {@link #normalize()}.
+     *
+     * The cell union *must* be normalized before doing any calculations with it,
+     * so it is the caller's responsibility to make sure that the input is normalized.
+     * This method is useful when converting cell unions to another representation and back.
+     *
+     * @param cellIds cell ids that form the union
      */
     public void initRawSwap(ArrayList<S2CellId> cellIds) {
-        this.cellIds = new ArrayList<S2CellId>(cellIds);
+        this.cellIds = new ArrayList<>(cellIds);
         cellIds.clear();
     }
 
@@ -104,7 +136,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     }
 
     /**
-     * Direct access to the underlying vector for iteration .
+     * Direct access to the underlying vector for iteration.
      */
     public ArrayList<S2CellId> cellIds() {
         return cellIds;
@@ -112,19 +144,25 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
 
     /**
      * Replaces "output" with an expanded version of the cell union where any
-     * cells whose level is less than "min_level" or where (level - min_level) is
-     * not a multiple of "level_mod" are replaced by their children, until either
+     * cells whose level is less than "minLevel" or where (level - minLevel) is
+     * not a multiple of "levelMod" are replaced by their children, until either
      * both of these conditions are satisfied or the maximum level is reached.
      * <p>
-     * This method allows a covering generated by S2RegionCoverer using
-     * min_level() or level_mod() constraints to be stored as a normalized cell
-     * union (which allows various geometric computations to be done) and then
-     * converted back to the original list of cell ids that satisfies the desired
-     * constraints.
+     * This method allows a covering generated by {@link S2RegionCoverer} using
+     * {@link S2RegionCoverer#minLevel()} or {@link S2RegionCoverer#levelMod()}
+     * constraints to be stored as a normalized cell union (which allows various
+     * geometric computations to be done) and then converted back to the original
+     * list of cell ids that satisfies the desired constraints.
+     *
+     * @param minLevel minimum level
+     * @param levelMod level modulo
+     * @param output S2CellId(s) from denormalizing the union
      */
     public void denormalize(int minLevel, int levelMod, ArrayList<S2CellId> output) {
         // assert (minLevel >= 0 && minLevel <= S2CellId.MAX_LEVEL);
         // assert (levelMod >= 1 && levelMod <= 3);
+        Preconditions.checkArgument(minLevel >= 0 && minLevel <= S2CellId.MAX_LEVEL);
+        Preconditions.checkArgument(levelMod >= 1 && levelMod <= 3);
 
         output.clear();
         output.ensureCapacity(size());
@@ -132,8 +170,8 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
             int level = id.level();
             int newLevel = Math.max(minLevel, level);
             if (levelMod > 1) {
-                // Round up so that (new_level - min_level) is a multiple of level_mod.
-                // (Note that S2CellId::kMaxLevel is a multiple of 1, 2, and 3.)
+                // Round up so that (newLevel - minLevel) is a multiple of levelMod...
+                // (Note that S2CellId.MAX_LEVEL is a multiple of 1, 2, and 3.)
                 newLevel += (S2CellId.MAX_LEVEL - (newLevel - minLevel)) % levelMod;
                 newLevel = Math.min(S2CellId.MAX_LEVEL, newLevel);
             }
@@ -149,10 +187,10 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     }
 
     /**
-     * If there are more than "excess" elements of the cell_ids() vector that are
+     * If there are more than "excess" elements of the cellIds() array list that are
      * allocated but unused, reallocate the array to eliminate the excess space.
-     * This reduces memory usage when many cell unions need to be held in memory
-     * at once.
+     * This reduces memory usage when many cell unions need to be held
+     * in memory at once.
      */
     public void pack() {
         cellIds.trimToSize();
@@ -164,7 +202,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
      * is a fast operation (logarithmic in the size of the cell union).
      */
     public boolean contains(S2CellId id) {
-        // This function requires that Normalize has been called first.
+        // This function requires that normalize() has been called first.
         //
         // This is an exact test. Each cell occupies a linear span of the S2
         // space-filling curve, and the cell id is simply the position at the center
@@ -188,8 +226,8 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
      * operation (logarithmic in the size of the cell union).
      */
     public boolean intersects(S2CellId id) {
-        // This function requires that Normalize has been called first.
-        // This is an exact test; see the comments for Contains() above.
+        // This function requires that normalize() has been called first.
+        // This is an exact test; see the comments for contains() above.
         int pos = Collections.binarySearch(cellIds, id);
 
         if (pos < 0) {
@@ -202,6 +240,11 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
         return pos != 0 && cellIds.get(pos - 1).rangeMax().greaterOrEquals(id.rangeMin());
     }
 
+    /**
+     * Return true if the cell union contains the given other cell union. Containment is
+     * defined with respect to regions, e.g. a cell contains its 4 children. This
+     * is a fast operation (logarithmic in the size of the cell union).
+     */
     public boolean contains(S2CellUnion that) {
         // TODO(kirilll?): A divide-and-conquer or alternating-skip-search approach
         // may be significantly faster in both the average and worst case.
@@ -214,7 +257,9 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     }
 
     /**
-     * This is a fast operation (logarithmic in the size of the cell union).
+     * Return true if the cell union contains the given cell. Containment is
+     * defined with respect to regions, e.g. a cell contains its 4 children. This
+     * is a fast operation (logarithmic in the size of the cell union).
      */
     public boolean contains(S2Cell cell) {
         return contains(cell.id());
@@ -234,9 +279,14 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
         return false;
     }
 
+    /**
+     * Create a new cell union that is the union of the 2 inputs.
+     */
     @VisibleForTesting
     void getUnion(S2CellUnion x, S2CellUnion y) {
         // assert (x != this && y != this);
+        Preconditions.checkArgument(x != this && y != this);
+
         cellIds.clear();
         cellIds.ensureCapacity(x.size() + y.size());
         cellIds.addAll(x.cellIds);
@@ -245,22 +295,22 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     }
 
     /**
-     * Specialized version of GetIntersection() that gets the intersection of a
+     * Specialized version of getIntersection() that gets the intersection of a
      * cell union with the given cell id. This can be useful for "splitting" a
      * cell union into chunks.
      */
     public void getIntersection(S2CellUnion x, S2CellId id) {
         // assert (x != this);
+        Preconditions.checkArgument(x != this);
+
         cellIds.clear();
         if (x.contains(id)) {
             cellIds.add(id);
         } else {
             int pos = Collections.binarySearch(x.cellIds, id.rangeMin());
-
             if (pos < 0) {
                 pos = -pos - 1;
             }
-
             S2CellId idmax = id.rangeMax();
             int size = x.cellIds.size();
             while (pos < size && x.cellIds.get(pos).lessOrEquals(idmax)) {
@@ -275,6 +325,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
      */
     public void getIntersection(S2CellUnion x, S2CellUnion y) {
         // assert (x != this && y != this);
+        Preconditions.checkArgument(x != this && y != this);
 
         // This is a fairly efficient calculation that uses binary search to skip
         // over sections of both input vectors. It takes constant time if all the
@@ -325,12 +376,10 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     }
 
     /**
-     * Just as normal binary search, except that it allows specifying the starting
-     * value for the lower bound.
+     * Just as normal binary search, except that it allows specifying the starting value for the lower bound.
      *
-     * @return The position of the searched element in the list (if found), or the
-     * position where the element could be inserted without violating the
-     * order.
+     * @return The position of the searched element in the list (if found),
+     * or the position where the element could be inserted without violating the order.
      */
     private int indexedBinarySearch(List<S2CellId> l, S2CellId key, int low) {
         int high = l.size() - 1;
@@ -360,7 +409,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
      * Note that the size of the output is exponential in "level". For example,
      * if level == 20 and the input has a cell at level 10, there will be on the
      * order of 4000 adjacent cells in the output. For most applications the
-     * Expand(min_fraction, min_distance) method below is easier to use.
+     * {@link #expand(S1Angle, int)} method below is easier to use.
      */
     public void expand(int level) {
         ArrayList<S2CellId> output = new ArrayList<S2CellId>();
@@ -454,15 +503,16 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     }
 
     /**
-     * This is a fast operation (logarithmic in the size of the cell union).
+     * Return true if the cell union (may) intersect the given cell id. This is a fast
+     * operation (logarithmic in the size of the cell union).
      */
     public boolean mayIntersect(S2Cell cell) {
         return intersects(cell.id());
     }
 
     /**
-     * The point 'p' does not need to be normalized. This is a fast operation
-     * (logarithmic in the size of the cell union).
+     * The point 'p' does not need to be normalized.
+     * This is a fast operation (logarithmic in the size of the cell union).
      */
     public boolean contains(S2Point p) {
         return contains(S2CellId.fromPoint(p));
@@ -470,8 +520,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     }
 
     /**
-     * The number of leaf cells covered by the union.
-     * This will be no more than 6*2^60 for the whole sphere.
+     * The number of leaf cells covered by the union. This will be no more than 6*2^60 for the whole sphere.
      *
      * @return the number of leaf cells covered by the union
      */
@@ -485,15 +534,13 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     }
 
     /**
-     * Approximate this cell union's area by summing the average area of
-     * each contained cell's average area, using {@link S2Cell#averageArea()}.
-     * This is equivalent to the number of leaves covered, multiplied by
-     * the average area of a leaf.
-     * Note that {@link S2Cell#averageArea()} does not take into account
-     * distortion of cell, and thus may be off by up to a factor of 1.7.
-     * NOTE: Since this is proportional to LeafCellsCovered(), it is
-     * always better to use the other function if all you care about is
-     * the relative average area between objects.
+     * Approximate this cell union's area by summing the average area of each contained
+     * cell's average area, using {@link S2Cell#averageArea()}. This is equivalent to
+     * the number of leaves covered, multiplied by the average area of a leaf. Note that
+     * {@link S2Cell#averageArea()} does not take into account distortion of cell, and
+     * thus may be off by up to a factor of 1.7. NOTE: Since this is proportional to
+     * {@link #leafCellsCovered()}, it is always better to use the other function
+     * if all you care about is the relative average area between objects.
      *
      * @return the sum of the average area of each contained cell's average area
      */
@@ -502,8 +549,8 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     }
 
     /**
-     * Calculates this cell union's area by summing the approximate area for each
-     * contained cell, using {@link S2Cell#approxArea()}.
+     * Calculates this cell union's area by summing the approximate area for each contained cell,
+     * using {@link S2Cell#approxArea()}.
      *
      * @return approximate area of the cell union
      */
@@ -516,8 +563,8 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
     }
 
     /**
-     * Calculates this cell union's area by summing the exact area for each
-     * contained cell, using the {@link S2Cell#exactArea()}.
+     * Calculates this cell union's area by summing the exact area for each contained cell,
+     * using the {@link S2Cell#exactArea()}.
      *
      * @return the exact area of the cell union
      */
@@ -552,20 +599,18 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
 
     /**
      * Normalizes the cell union by discarding cells that are contained by other
-     * cells, replacing groups of 4 child cells by their parent cell whenever
-     * possible, and sorting all the cell ids in increasing order. Returns true if
-     * the number of cells was reduced.
+     * cells, replacing groups of 4 child cells by their parent cell whenever possible,
+     * and sorting all the cell ids in increasing order. Returns true if the number of cells was reduced.
      * <p>
-     * This method *must* be called before doing any calculations on the cell
-     * union, such as Intersects() or Contains().
+     * This method *must* be called before doing any calculations on the cell union,
+     * such as {@link #intersects(S2CellId)} or {@link #contains(S2Cell)}.
      *
-     * @return true if the normalize operation had any effect on the cell union,
-     * false if the union was already normalized
+     * @return true if the normalize operation had any effect on union, false if the union was already normalized
      */
     public boolean normalize() {
         // Optimize the representation by looking for cases where all subcells of a parent cell are present.
 
-        ArrayList<S2CellId> output = new ArrayList<S2CellId>(cellIds.size());
+        ArrayList<S2CellId> output = new ArrayList<>(cellIds.size());
         output.ensureCapacity(cellIds.size());
         Collections.sort(cellIds);
 

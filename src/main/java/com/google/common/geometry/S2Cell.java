@@ -18,9 +18,8 @@ package com.google.common.geometry;
 import com.google.common.base.MoreObjects;
 
 /**
- * An S2Cell is an S2Region object that represents a cell. Unlike S2CellIds, it
- * supports efficient containment and intersection tests. However, it is also a
- * more expensive representation.
+ * An S2Cell is an {@link S2Region} object that represents a cell. Unlike {@link S2CellId}s, it
+ * supports efficient containment and intersection tests. However, it is also a more expensive representation.
  */
 public final strictfp class S2Cell implements S2Region {
 
@@ -39,7 +38,7 @@ public final strictfp class S2Cell implements S2Region {
     }
 
     /**
-     * An S2Cell always corresponds to a particular S2CellId. The other
+     * An S2Cell always corresponds to a particular {@link S2CellId}. The other
      * constructors are just convenience methods.
      */
     public S2Cell(S2CellId id) {
@@ -179,7 +178,7 @@ public final strictfp class S2Cell implements S2Region {
     }
 
     /**
-     * Return the center of the cell in (u,v) coordinates {@see com.google.common.geometry.S2Projections}.
+     * Return the center of the cell in (u,v) coordinates @see com.google.common.geometry.S2Projections.
      * Note that the center of the cell is defined as the point at which it is recursively subdivided
      * into four children; in general, it is not at the midpoint of the (u,v) rectangle covered by the cell
      */
@@ -208,8 +207,7 @@ public final strictfp class S2Cell implements S2Region {
 
     /**
      * Return the average area of cells at this level. This is accurate to within a factor of 1.7,
-     * for S2_QUADRATIC_PROJECTION, {@see com.google.common.geometry.S2Projections},
-     * and is extremely cheap to compute.
+     * for S2_QUADRATIC_PROJECTION (@see com.google.common.geometry.S2Projections), and is extremely cheap to compute.
      */
     public double averageArea() {
         return averageArea(level);
