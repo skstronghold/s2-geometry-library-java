@@ -9,7 +9,7 @@ Enabled dependency management and builds via Maven.
 
 Upgrades
 ========
-Upgraded dependencies and minor code/test changes to support latest versions and compile to Java 8. 
+Upgraded dependencies and minor code changes to support latest versions and compile to Java 8. 
 
 Modifications
 =============
