@@ -35,22 +35,18 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         LOG.info("TestBasic");
 
         S2CellUnion empty = new S2CellUnion();
-        ArrayList<S2CellId> ids = Lists.newArrayList();
-        empty.initFromCellIds(ids);
+        empty.initFromCellIds(Lists.newArrayList());
         assertEquals(0, empty.size());
 
         S2CellId face1Id = S2CellId.fromFacePosLevel(1, 0, 0);
         S2CellUnion face1Union = new S2CellUnion();
-        ids.add(face1Id);
-        face1Union.initFromCellIds(ids);
+        face1Union.initFromCellIds(Lists.newArrayList(face1Id));
         assertEquals(1, face1Union.size());
         assertEquals(face1Id, face1Union.cellId(0));
 
         S2CellId face2Id = S2CellId.fromFacePosLevel(2, 0, 0);
         S2CellUnion face2Union = new S2CellUnion();
-        ArrayList<Long> cellids = Lists.newArrayList();
-        cellids.add(face2Id.id());
-        face2Union.initFromIds(cellids);
+        face2Union.initFromIds(Lists.newArrayList(face2Id.id()));
         assertEquals(1, face2Union.size());
         assertEquals(face2Id, face2Union.cellId(0));
 
@@ -64,7 +60,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
     public void testContainsCellUnion() {
         LOG.info("TestContainsCellUnion");
 
-        Set<S2CellId> randomCells = new HashSet<S2CellId>();
+        Set<S2CellId> randomCells = new HashSet<>();
         for (int i = 0; i < 100; i++) {
             randomCells.add(getRandomCellId(S2CellId.MAX_LEVEL));
         }
@@ -83,7 +79,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         assertFalse(union.contains(unionPlusOne));
 
         // Build the set of parent cells and check containment
-        Set<S2CellId> parents = new HashSet<S2CellId>();
+        Set<S2CellId> parents = new HashSet<>();
         for (S2CellId cellId : union) {
             parents.add(cellId.parent());
         }
@@ -95,8 +91,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         assertFalse(union.contains(parentUnion));
     }
 
-    private void addCells(S2CellId id, boolean selected, List<S2CellId> input,
-                          ArrayList<S2CellId> expected) {
+    private void addCells(S2CellId id, boolean selected, List<S2CellId> input, ArrayList<S2CellId> expected) {
         // Decides whether to add "id" and/or some of its descendants to the
         // test case. If "selected" is true, then the region covered by "id"
         // *must* be added to the test case (either by adding "id" itself, or
@@ -130,8 +125,8 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         }
 
         // With the rnd.OneIn() constants below, this function adds an average
-        // of 5/6 * (kMaxLevel - level) cells to "input" where "level" is the
-        // level at which the cell was first selected (level 15 on average).
+        // of 5/6 * (S2CellId.MAX_LEVEL - level) cells to "input" where "level"
+        // is the level at which the cell was first selected (level 15 on average).
         // Therefore the average number of input cells in a test case is about
         // (5/6 * 15 * 6) = 75. The average number of output cells is about 6.
 
@@ -170,8 +165,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         LOG.info("TestNormalize");
 
         // Try a bunch of random test cases, and keep track of average
-        // statistics for normalization (to see if they agree with the
-        // analysis above).
+        // statistics for normalization (to see if they agree with the analysis above).
         S2CellUnion cellunion = new S2CellUnion();
         double inSum = 0, outSum = 0;
         final int kIters = 2000;
@@ -325,11 +319,10 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         for (int i = 0; i < 1000; ++i) {
             S2Cap cap = getRandomCap(S2Cell.averageArea(S2CellId.MAX_LEVEL), 4 * S2.M_PI);
 
-            // Expand the cap by a random factor whose log is uniformly distributed
-            // between 0 and log(1e2).
+            // Expand the cap by a random factor whose log is uniformly distributed between 0 and log(1e2).
             S2Cap expandedCap =
-                    S2Cap.fromAxisHeight(cap.axis(), Math.min(2.0, Math.pow(1e2, RANDOM_GENERATOR.nextDouble())
-                            * cap.height()));
+                    S2Cap.fromAxisHeight(cap.axis(),
+                            Math.min(2.0, Math.pow(1e2, RANDOM_GENERATOR.nextDouble()) * cap.height()));
 
             double radius = expandedCap.angle().radians() - cap.angle().radians();
             int maxLevelDiff = random(8);
@@ -347,8 +340,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
             covering.expand(S1Angle.radians(radius), maxLevelDiff);
             checkCovering(expandedCap, covering, false, S2CellId.none());
 
-            int expandLevel =
-                    Math.min(minLevel + maxLevelDiff, S2Projections.MIN_WIDTH.getMaxLevel(radius));
+            int expandLevel = Math.min(minLevel + maxLevelDiff, S2Projections.MIN_WIDTH.getMaxLevel(radius));
             double expandedMaxAngle = getMaxAngle(covering, cap.axis());
 
             // If the covering includes a tiny cell along the boundary, in theory the
@@ -367,8 +359,7 @@ public strictfp class S2CellUnionTest extends GeometryTestCase {
         assertEquals(0, cellUnion.leafCellsCovered());
 
         ArrayList<S2CellId> ids = Lists.newArrayList();
-        ids.add(S2CellId.fromFacePosLevel(
-                0, (1L << ((S2CellId.MAX_LEVEL << 1) - 1)), S2CellId.MAX_LEVEL));
+        ids.add(S2CellId.fromFacePosLevel(0, (1L << ((S2CellId.MAX_LEVEL << 1) - 1)), S2CellId.MAX_LEVEL));
 
         // One leaf on face 0.
         cellUnion.initFromCellIds(ids);

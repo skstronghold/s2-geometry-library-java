@@ -49,8 +49,8 @@ public strictfp class GeometryTestCase {
     }
 
     /**
-     * Return a right-handed coordinate frame (three orthonormal vectors). Returns
-     * an array of three points: x,y,z
+     * Return a right-handed coordinate frame (three orthonormal vectors).
+     * Returns a list of three points: x,y,z
      */
     public List<S2Point> getRandomFrame() {
         S2Point p0 = randomPoint();
@@ -135,9 +135,7 @@ public strictfp class GeometryTestCase {
     }
 
     S2Point samplePoint(S2Cap cap) {
-        // We consider the cap axis to be the "z" axis. We choose two other axes to
-        // complete the coordinate frame.
-
+        // We consider the cap axis to be the "z" axis. We choose two other axes to complete the coordinate frame.
         S2Point z = cap.axis();
         S2Point x = z.ortho();
         S2Point y = S2Point.crossProd(z, x);
@@ -145,7 +143,6 @@ public strictfp class GeometryTestCase {
         // The surface area of a spherical cap is directly proportional to its
         // height. First we choose a random height, and then we choose a random
         // point along the circle at that height.
-
         double h = RANDOM_GENERATOR.nextDouble() * cap.height();
         double theta = 2 * S2.M_PI * RANDOM_GENERATOR.nextDouble();
         double r = Math.sqrt(h * (2 - h)); // Radius of circle.

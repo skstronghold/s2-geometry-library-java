@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -45,9 +46,9 @@ public strictfp class S2RegionCovererTest extends GeometryTestCase {
         }
     }
 
-    public void checkCovering(S2RegionCoverer coverer, S2Region region, ArrayList<S2CellId> covering, boolean interior) {
-        // Keep track of how many cells have the same coverer.min_level() ancestor.
-        HashMap<S2CellId, Integer> minLevelCells = new HashMap<S2CellId, Integer>();
+    void checkCovering(S2RegionCoverer coverer, S2Region region, ArrayList<S2CellId> covering, boolean interior) {
+        // Keep track of how many cells have the same coverer.minLevel() ancestor.
+        Map<S2CellId, Integer> minLevelCells = new HashMap<>();
         for (int i = 0; i < covering.size(); ++i) {
             int level = covering.get(i).level();
             assertTrue(level >= coverer.minLevel());
@@ -67,7 +68,6 @@ public strictfp class S2RegionCovererTest extends GeometryTestCase {
                 assertEquals(i.intValue(), 1);
             }
         }
-
         if (interior) {
             for (int i = 0; i < covering.size(); ++i) {
                 assertTrue(region.contains(new S2Cell(covering.get(i))));
@@ -95,8 +95,8 @@ public strictfp class S2RegionCovererTest extends GeometryTestCase {
             double maxArea = Math.min(
                     4 * S2.M_PI, (3 * coverer.maxCells() + 1) * S2Cell.averageArea(coverer.minLevel()));
             S2Cap cap = getRandomCap(0.1 * S2Cell.averageArea(kMaxLevel), maxArea);
-            ArrayList<S2CellId> covering = new ArrayList<S2CellId>();
-            ArrayList<S2CellId> interior = new ArrayList<S2CellId>();
+            ArrayList<S2CellId> covering = new ArrayList<>();
+            ArrayList<S2CellId> interior = new ArrayList<>();
 
             coverer.getCovering(cap, covering);
             checkCovering(coverer, cap, covering, false);
@@ -110,10 +110,9 @@ public strictfp class S2RegionCovererTest extends GeometryTestCase {
             coverer.getCovering(cap, covering2);
             assertTrue(covering.equals(covering2));
 
-            // Also check S2CellUnion.denormalize(). The denormalized covering
-            // may still be different and smaller than "covering" because
-            // S2RegionCoverer does not guarantee that it will not output all four
-            // children of the same parent.
+            // Also check S2CellUnion.denormalize(). The denormalized covering may still be different
+            // and smaller than "covering" because S2RegionCoverer does not guarantee that it will not
+            // output all four children of the same parent.
             S2CellUnion cells = new S2CellUnion();
             cells.initFromCellIds(covering);
             ArrayList<S2CellId> denormalized = new ArrayList<S2CellId>();
@@ -135,7 +134,7 @@ public strictfp class S2RegionCovererTest extends GeometryTestCase {
             coverer.setMaxLevel(level);
             double maxArea = Math.min(4 * S2.M_PI, 1000 * S2Cell.averageArea(level));
             S2Cap cap = getRandomCap(0.1 * S2Cell.averageArea(kMaxLevel), maxArea);
-            ArrayList<S2CellId> covering = new ArrayList<S2CellId>();
+            ArrayList<S2CellId> covering = new ArrayList<>();
             S2RegionCoverer.getSimpleCovering(cap, cap.axis(), level, covering);
             checkCovering(coverer, cap, covering, false);
         }
