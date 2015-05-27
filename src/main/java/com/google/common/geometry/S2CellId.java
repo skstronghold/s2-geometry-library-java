@@ -38,16 +38,16 @@ import java.util.Locale;
  * Sequentially increasing cell ids follow a continuous space-filling curve over the entire sphere.
  * They have the following properties:
  * <ul>
- *     <li>
- *      The id of a cell at level k consists of a 3-bit face number followed by k
- *      bit pairs that recursively select one of the four children of each cell. The
- *      next bit is always 1, and all other bits are 0. Therefore, the level of a
- *      cell is determined by the position of its lowest-numbered bit that is turned
- *      on (for a cell at level k, this position is 2 * (MAX_LEVEL - k).)
- *    </li><li>
- *      The id of a parent cell is at the midpoint of the range of ids spanned by
- *      its children (or by its descendants at any level).
- *    </li>
+ * <li>
+ * The id of a cell at level k consists of a 3-bit face number followed by k
+ * bit pairs that recursively select one of the four children of each cell. The
+ * next bit is always 1, and all other bits are 0. Therefore, the level of a
+ * cell is determined by the position of its lowest-numbered bit that is turned
+ * on (for a cell at level k, this position is 2 * (MAX_LEVEL - k).)
+ * </li><li>
+ * The id of a parent cell is at the midpoint of the range of ids spanned by
+ * its children (or by its descendants at any level).
+ * </li>
  * </ul>
  * <p>
  * Leaf cells are often used to represent points on the unit sphere, and this
@@ -731,6 +731,7 @@ public final strictfp class S2CellId implements Comparable<S2CellId> {
 
     /**
      * Return a leaf cell given its cube face (range 0..5) and i- and j-coordinates.
+     *
      * @see com.google.common.geometry.S2
      */
     public static S2CellId fromFaceIJ(int face, int i, int j) {

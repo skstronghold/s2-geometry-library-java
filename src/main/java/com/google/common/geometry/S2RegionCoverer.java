@@ -54,10 +54,9 @@ import java.util.*;
  * <p>
  * This class is ** NOT thread safe **. Simultaneous calls to any of the 'getCovering()'
  * methods will conflict and produce unpredictable results.
- *  {@link #getCovering(S2Region)}
- *  {@link #getCovering(S2Region, ArrayList)}
- *  {@link #getCovering(S2Region, S2CellUnion)}
- *
+ * {@link #getCovering(S2Region)}
+ * {@link #getCovering(S2Region, ArrayList)}
+ * {@link #getCovering(S2Region, S2CellUnion)}
  */
 public final strictfp class S2RegionCoverer {
 
@@ -148,7 +147,7 @@ public final strictfp class S2RegionCoverer {
     /**
      * Set the minimum cell level to be used. The default is to use all cell levels.
      * Requires: {@link #maxLevel()} >= {@link #minLevel()}.
-     *
+     * <p>
      * To find the cell level corresponding to a given physical distance, use the
      * S2Cell metrics defined in {@link com.google.common.geometry.S2}. For example,
      * to find the cell level that corresponds to an average edge length of 10km, use:
@@ -166,7 +165,7 @@ public final strictfp class S2RegionCoverer {
     /**
      * Set the maximum cell level to be used. The default is to use all cell levels.
      * Requires: {@link #maxLevel()} >= {@link #minLevel()}.
-     *
+     * <p>
      * To find the cell level corresponding to a given physical distance, use the
      * S2Cell metrics defined in {@link com.google.common.geometry.S2}. For example,
      * to find the cell level that corresponds to an average edge length of 10km, use:

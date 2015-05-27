@@ -427,7 +427,7 @@ public final strictfp class S2Cap implements S2Region {
     /**
      * Return true if the cap axis and height differ by at most "max_error" from the given cap "other".
      *
-     * @param other cap to compare for approximate equality
+     * @param other    cap to compare for approximate equality
      * @param maxError maximum axis and height difference allowed
      */
     @VisibleForTesting

@@ -63,7 +63,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
 
     /**
      * Populates a cell union with the given {@link S2CellId}(s) and then calls {@link #normalize()}.
-     *
+     * <p>
      * Takes ownership of the input {@link java.util.ArrayList} data without copying and clears it.
      *
      * @param cellIds cell ids that form the union
@@ -75,7 +75,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
 
     /**
      * Like {@link #initFromCellIds(ArrayList)}, but does not call {@link #normalize()}.
-     *
+     * <p>
      * The cell union *must* be normalized before doing any calculations with it,
      * so it is the caller's responsibility to make sure that the input is normalized.
      * This method is useful when converting cell unions to another representation and back.
@@ -88,7 +88,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
 
     /**
      * Like {@link #initFromIds(ArrayList)}, but does not call {@link #normalize()}.
-     *
+     * <p>
      * The cell union *must* be normalized before doing any calculations with it,
      * so it is the caller's responsibility to make sure that the input is normalized.
      * This method is useful when converting cell unions to another representation and back.
@@ -105,7 +105,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
 
     /**
      * Like {@link #initSwap(ArrayList)}, but does not call {@link #normalize()}.
-     *
+     * <p>
      * The cell union *must* be normalized before doing any calculations with it,
      * so it is the caller's responsibility to make sure that the input is normalized.
      * This method is useful when converting cell unions to another representation and back.
@@ -156,7 +156,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
      *
      * @param minLevel minimum level
      * @param levelMod level modulo
-     * @param output S2CellId(s) from denormalizing the union
+     * @param output   S2CellId(s) from denormalizing the union
      */
     public void denormalize(int minLevel, int levelMod, ArrayList<S2CellId> output) {
         // assert (minLevel >= 0 && minLevel <= S2CellId.MAX_LEVEL);
