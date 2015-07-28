@@ -98,10 +98,18 @@ public final strictfp class S2Cell implements S2Region {
         return S2Projections.faceUvToXyz(face, uv[0][(k >> 1) ^ (k & 1)], uv[1][k >> 1]);
     }
 
+    /**
+     * Return the unit length inward-facing normal of the great circle passing through the
+     * edge from vertex k to vertex k+1 (mod 4).
+     */
     public S2Point getEdge(int k) {
         return S2Point.normalize(getEdgeRaw(k));
     }
 
+    /**
+     * Return the inward-facing normal of the great circle passing through the
+     * edge from vertex k to vertex k+1 (mod 4). Result is not necessarily unit length.
+     */
     public S2Point getEdgeRaw(int k) {
         switch (k) {
             case 0:
@@ -116,10 +124,6 @@ public final strictfp class S2Cell implements S2Region {
     }
 
     /**
-     * Return the inward-facing normal of the great circle passing through the
-     * edge from vertex k to vertex k+1 (mod 4). The normals returned by
-     * getEdgeRaw() are not necessarily unit length.
-     * <p>
      * If this is not a leaf cell, set children[0..3] to the four children of
      * this cell (in traversal order) and return true. Otherwise returns false.
      * This method is equivalent to the following:

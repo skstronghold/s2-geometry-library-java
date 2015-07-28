@@ -755,8 +755,7 @@ public final strictfp class S2Loop implements S2Region, Comparable<S2Loop> {
                         crosser.restartAt(vertex(b1));
                     }
 
-                    // Beware, this may return the loop is valid if there is a "vertex crossing".
-                    // TODO(user): Fix that.
+                    // TODO(user): Fix this - Beware, this may return the loop is valid if there is a "vertex crossing".
                     crosses = crosser.robustCrossing(vertex(b2)) > 0;
                     previousIndex = b2;
                     if (crosses) {

@@ -181,7 +181,6 @@ public final strictfp class S2PolygonBuilder {
          * If set to a positive value, all vertices that are separated by at most
          * this distance will be merged together. In addition, vertices that are
          * closer than this distance to a non-incident edge will be spliced into it
-         * (TODO).
          * <p>
          * The merging is done in such a way that all vertex-vertex and vertex-edge
          * distances in the output are greater than 'merge_distance'.

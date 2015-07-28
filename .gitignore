@@ -3,8 +3,25 @@ build/
 # maven
 target/
 
-# intellij
+# IntelliJ
 overlays/
 .idea/
 *.iml
 *.iws
+
+# Eclipse
+.classpath
+.project
+.settings/
+.springBeans
+
+# Maven
+target/
+
+# Misc
+/log/
+*.orig
+~*
+.DS_Store
+.~*
+*.jar

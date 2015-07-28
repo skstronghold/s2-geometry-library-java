@@ -246,8 +246,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
      * is a fast operation (logarithmic in the size of the cell union).
      */
     public boolean contains(S2CellUnion that) {
-        // TODO(kirilll?): A divide-and-conquer or alternating-skip-search approach
-        // may be significantly faster in both the average and worst case.
+        // TODO(kirilll?): A divide-and-conquer or alternating-skip-search approach may be significantly faster in both the average and worst case.
         for (S2CellId id : that) {
             if (!this.contains(id)) {
                 return false;
@@ -269,8 +268,7 @@ public strictfp class S2CellUnion implements S2Region, Iterable<S2CellId> {
      * Return true if this cell union contain/intersects the given other cell union.
      */
     public boolean intersects(S2CellUnion union) {
-        // TODO(kirilll?): A divide-and-conquer or alternating-skip-search approach
-        // may be significantly faster in both the average and worst case.
+        // TODO(kirilll?): A divide-and-conquer or alternating-skip-search approach may be significantly faster in both the average and worst case.
         for (S2CellId id : union) {
             if (intersects(id)) {
                 return true;

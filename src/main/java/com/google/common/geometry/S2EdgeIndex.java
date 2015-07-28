@@ -230,14 +230,11 @@ public abstract strictfp class S2EdgeIndex {
         ArrayList<S2CellId> cover = Lists.newArrayList();
         getCovering(a, b, false, cover);
 
-        // Edge references are inserted into the map once for each covering cell, so
-        // absorb duplicates here
-        Set<Integer> uniqueSet = new HashSet<Integer>();
+        // Edge references are inserted into the map once for each covering cell, so absorb duplicates here
+        Set<Integer> uniqueSet = new HashSet<>();
         getEdgesInParentCells(cover, uniqueSet);
 
-        // TODO(user): An important optimization for long query
-        // edges (Contains queries): keep a bounding cap and clip the query
-        // edge to the cap before starting the descent.
+        // TODO(user): An important optimization for long query edges (Contains queries): keep a bounding cap and clip the query edge to the cap before starting the descent.
         getEdgesInChildrenCells(a, b, cover, uniqueSet);
 
         candidateCrossings.clear();
@@ -507,10 +504,7 @@ public abstract strictfp class S2EdgeIndex {
                 }
                 new S2Cell(cell).subdivide(children);
                 for (S2Cell child : children) {
-                    // TODO(user): Do the check for the four cells at once,
-                    // as it is enough to check the four edges between the cells. At
-                    // this time, we are checking 16 edges, 4 times too many.
-                    //
+                    // TODO(user): Do the check for the four cells at once, as it is enough to check the four edges between the cells. At this time, we are checking 16 edges, 4 times too many.
                     // Note that given the guarantee of AppendCovering, it is enough
                     // to check that the edge intersect with the cell boundary as it
                     // cannot be fully contained in a cell.

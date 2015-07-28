@@ -148,10 +148,7 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         // while also preserving the requirement that each loop is immediately
         // followed by its descendants in the nesting hierarchy.
         //
-        // TODO(andriy): as per kirilll in CL 18750833 code review comments:
-        // This should work for now, but I think it's possible to guarantee the
-        // correct order inside insertLoop by searching for the correct position in
-        // the children list before inserting.
+        // TODO(andriy): per kirilll, This should work for now, but I think it's possible to guarantee the correct order inside insertLoop by searching for the correct position in the children list before inserting.
         sortValueLoops(loopMap);
 
         // Reorder the loops in depth-first traversal order.
@@ -656,24 +653,45 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
     }
 
     /**
-     * Initialize this polygon to the intersection, union, or difference (A - B)
-     * of the given two polygons. The "vertexMergeRadius" determines how close two
-     * vertices must be to be merged together and how close a vertex must be to an
-     * edge in order to be spliced into it (see S2PolygonBuilder for details). By
-     * default, the merge radius is just large enough to compensate for errors
-     * that occur when computing intersection points between edges
-     * (S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE).
+     * Initialize this polygon to the intersection of the given two polygons.
+     * A "vertexMergeRadius" determines how close two vertices must be to be merged
+     * together and how close a vertex must be to an edge in order to be spliced into
+     * it ({@link S2PolygonBuilder} for details). By default, the merge radius is just
+     * large enough to compensate for errors that occur when computing intersection points
+     * between edges (@see S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE).
      * <p>
      * If you are going to convert the resulting polygon to a lower-precision
      * format, it is necessary to increase the merge radius in order to get a
-     * valid result after rounding (i.e. no duplicate vertices, etc). For example,
-     * if you are going to convert them to geostore.PolygonProto format, then
-     * S1Angle.e7(1) is a good value for "vertex_merge_radius".
+     * valid result after rounding (i.e. no duplicate vertices, etc).  Use
+     * {@link #initToIntersectionSloppy(S2Polygon, S2Polygon, S1Angle)} to explicitly
+     * set the merge radius.
+     * <p>
+     * For example, if the resulting polygon represents geospatial entity on earth's surface,
+     * then S1Angle.e7(1) is a good value for "vertex_merge_radius", as 7 digits of precision
+     * supplies ~11 mm of resolution at the equator and is the "practical limit of commercial surveying",
+     * @see - https://en.wikipedia.org/wiki/Decimal_degrees for detail(s).
      */
     public void initToIntersection(final S2Polygon a, final S2Polygon b) {
         initToIntersectionSloppy(a, b, S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE);
     }
 
+    /**
+     * Initialize this polygon to the intersection of the given two polygons.
+     * The vertexMergeRadius input determines how close two vertices must be to be merged
+     * together and how close a vertex must be to an edge in order to be spliced into
+     * it ({@link S2PolygonBuilder} for details). By default, the merge radius is just
+     * large enough to compensate for errors that occur when computing intersection points
+     * between edges...{@link #initToIntersection(S2Polygon, S2Polygon)}.
+     * <p>
+     * If you are going to convert the resulting polygon to a lower-precision
+     * format, it is necessary to increase the merge radius in order to get a
+     * valid result after rounding (i.e. no duplicate vertices, etc).
+     * <p>
+     * For example, if the resulting polygon represents geospatial entity on earth's surface,
+     * then S1Angle.e7(1) is a good value for "vertex_merge_radius", as 7 digits of precision
+     * supplies ~11 mm of resolution at the equator and is the "practical limit of commercial surveying",
+     * @see - https://en.wikipedia.org/wiki/Decimal_degrees for detail(s).
+     */
     public void initToIntersectionSloppy(
             final S2Polygon a, final S2Polygon b, S1Angle vertexMergeRadius) {
         Preconditions.checkState(numLoops() == 0);
@@ -696,10 +714,46 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
         }
     }
 
+    /**
+     * Initialize this polygon to the union of the given two polygons.
+     * A "vertexMergeRadius" determines how close two vertices must be to be merged
+     * together and how close a vertex must be to an edge in order to be spliced into
+     * it ({@link S2PolygonBuilder} for details). By default, the merge radius is just
+     * large enough to compensate for errors that occur when computing intersection points
+     * between edges (@see S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE).
+     * <p>
+     * If you are going to convert the resulting polygon to a lower-precision
+     * format, it is necessary to increase the merge radius in order to get a
+     * valid result after rounding (i.e. no duplicate vertices, etc).  Use
+     * {@link #initToUnionSloppy(S2Polygon, S2Polygon, S1Angle)} to explicitly
+     * set the merge radius.
+     * <p>
+     * For example, if the resulting polygon represents geospatial entity on earth's surface,
+     * then S1Angle.e7(1) is a good value for "vertex_merge_radius", as 7 digits of precision
+     * supplies ~11 mm of resolution at the equator and is the "practical limit of commercial surveying",
+     * @see - https://en.wikipedia.org/wiki/Decimal_degrees for detail(s).
+     */
     public void initToUnion(final S2Polygon a, final S2Polygon b) {
         initToUnionSloppy(a, b, S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE);
     }
 
+    /**
+     * Initialize this polygon to the union of the given two polygons.
+     * The vertexMergeRadius input determines how close two vertices must be to be merged
+     * together and how close a vertex must be to an edge in order to be spliced into
+     * it ({@link S2PolygonBuilder} for details). By default, the merge radius is just
+     * large enough to compensate for errors that occur when computing intersection points
+     * between edges (@see S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE).
+     * <p>
+     * If you are going to convert the resulting polygon to a lower-precision
+     * format, it is necessary to increase the merge radius in order to get a
+     * valid result after rounding (i.e. no duplicate vertices, etc).
+     * <p>
+     * For example, if the resulting polygon represents geospatial entity on earth's surface,
+     * then S1Angle.e7(1) is a good value for "vertex_merge_radius", as 7 digits of precision
+     * supplies ~11 mm of resolution at the equator and is the "practical limit of commercial surveying",
+     * @see - https://en.wikipedia.org/wiki/Decimal_degrees for detail(s).
+     */
     public void initToUnionSloppy(final S2Polygon a, final S2Polygon b, S1Angle vertexMergeRadius) {
         Preconditions.checkState(numLoops() == 0);
 
@@ -719,7 +773,10 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
     }
 
     /**
-     * Return a polygon which is the union of the given polygons. Note: clears the List!
+     * Return a polygon which is the union of the given polygons. See
+     * {@link #initToUnion(S2Polygon, S2Polygon)} for more details on this operation.
+     * <p>
+     * Note: clears the List!
      */
     public static S2Polygon destructiveUnion(List<S2Polygon> polygons) {
         return destructiveUnionSloppy(polygons, S2EdgeUtil.DEFAULT_INTERSECTION_TOLERANCE);
@@ -728,7 +785,10 @@ public final strictfp class S2Polygon implements S2Region, Comparable<S2Polygon>
     /**
      * Return a polygon which is the union of the given polygons; combines
      * vertices that form edges that are almost identical, as defined by
-     * vertexMergeRadius. Note: clears the List!
+     * vertexMergeRadius. See {@link #initToUnionSloppy(S2Polygon, S2Polygon, S1Angle)}
+     * for more details on this operation.
+     * <p>
+     * Note: clears the List!
      */
     public static S2Polygon destructiveUnionSloppy(
             List<S2Polygon> polygons, S1Angle vertexMergeRadius) {

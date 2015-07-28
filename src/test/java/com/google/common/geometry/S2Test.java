@@ -156,8 +156,7 @@ public strictfp class S2Test extends GeometryTestCase {
         S2Point pr = new S2Point(0.257, -0.5723, 0.112);
         S2Point pq = new S2Point(-0.747, 0.401, 0.2235);
         assertEquals(S2.area(pr, pr, pr), 0.0, DEFAULT_EPSILON);
-        // TODO: The following test is not exact in optimized mode because the
-        // compiler chooses to mix 64-bit and 80-bit intermediate results.
+        // TODO: The following test is not exact in optimized mode because the compiler chooses to mix 64-bit and 80-bit intermediate results.
         assertDoubleNear(S2.area(pr, pq, pr), 0);
         assertEquals(S2.area(p000, p045, p090), 0.0, DEFAULT_EPSILON);
 
